@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.29403.142
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MemeSite", "MemeSite\MemeSite.csproj", "{0EB25468-4B2D-4AC0-9280-EFB93E4DF109}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MemeSite.Model", "Model\MemeSite.Model.csproj", "{F2B74EE8-79C3-4CD2-8CAF-0AF2C4388C02}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{0EB25468-4B2D-4AC0-9280-EFB93E4DF109}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0EB25468-4B2D-4AC0-9280-EFB93E4DF109}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0EB25468-4B2D-4AC0-9280-EFB93E4DF109}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2B74EE8-79C3-4CD2-8CAF-0AF2C4388C02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2B74EE8-79C3-4CD2-8CAF-0AF2C4388C02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2B74EE8-79C3-4CD2-8CAF-0AF2C4388C02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2B74EE8-79C3-4CD2-8CAF-0AF2C4388C02}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
