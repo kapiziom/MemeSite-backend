@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using MemeSite.Repositories;
 using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MemeSite.Controllers
@@ -15,10 +20,12 @@ namespace MemeSite.Controllers
     public class MemeController : ControllerBase
     {
         private readonly IMemeRepository _memeRepository;
+        public static IWebHostEnvironment _environment;
 
-        public MemeController(IMemeRepository memeRepository)
+        public MemeController(IWebHostEnvironment webHostEnvironment, IMemeRepository memeRepository)
         {
-            memeRepository = _memeRepository;
+            _memeRepository = memeRepository;
+            _environment = webHostEnvironment;
         }
 
         [HttpPost]
@@ -27,10 +34,14 @@ namespace MemeSite.Controllers
         {
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
             _memeRepository.UploadMeme(model, userId);
+
+
             return Ok(model);
         }
 
         
+
+
         [HttpPut]
         [Authorize]
         public IActionResult EditMeme()

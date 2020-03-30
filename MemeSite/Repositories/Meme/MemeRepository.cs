@@ -16,26 +16,23 @@ namespace MemeSite.Repositories
             _applicationDbContext = context;
         }
 
-        public string UploadImage(FileUpload file)
-        {
-            return "elo";
-        }
-
-        public void UploadMeme(MemeUploadVM m, string userId)
+        public void UploadMeme(MemeUploadVM model, string userId)
         {
             var meme = new Meme()
             {
-                Title = m.Title,
-                Txt = m.Txt,
-                CategoryId = m.CategoryId,
-                //iformfile to do
+                Title = model.Title,
+                UserID = userId,
+                Txt = model.Txt,
+                CategoryId = model.CategoryId,
+                ImageName = model.FileName,
+                ByteHead = model.ByteHead,
+                ImageByte = model.FileByte,
+                CreationDate = DateTime.Now,
                 IsAccepted = false,
                 IsArchivized = false,
-                CreationDate = DateTime.Now,
                 AccpetanceDate = null,
-                UserID = userId,
-
             };
+            
             _applicationDbContext.Memes.Add(meme);
             _applicationDbContext.SaveChanges();
         }

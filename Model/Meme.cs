@@ -18,11 +18,10 @@ namespace MemeSite.Model
         public bool IsAccepted { get; set; }
         public bool IsArchivized { get; set; }
         public DateTime? AccpetanceDate { get; set; }
-
-        public string ImageName { get; set; }
-        public string ImagePath { get; set; }
         public string Uri { get; set; }
-        
+        public string ImageName { get; set; }
+        public string ByteHead { get; set; }
+        public byte[] ImageByte { get; set; }
         public string UserID { get; set; }
         public int CategoryId { get; set; }
         public List<Comment> Comments { get; set; }

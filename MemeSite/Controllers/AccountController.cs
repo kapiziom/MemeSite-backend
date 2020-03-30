@@ -66,14 +66,12 @@ namespace MemeSite.Controllers
         public async Task<object> Register([FromBody] RegisterVM model)
         {
             var user = new PageUser { UserName = model.UserName, Email = model.Email, CreationDate = DateTime.Now };
-
             try
             {
                 var CheckEmail = await _userManager.FindByEmailAsync(model.Email);
                 var CheckUsername = await _userManager.FindByNameAsync(model.UserName);
                 var result = await _userManager.CreateAsync(user, model.Password);
                 await _userManager.AddToRoleAsync(user, "NormalUser");
-
                 return Ok(result);
             }
             catch (Exception ex)

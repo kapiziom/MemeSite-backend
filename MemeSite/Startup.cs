@@ -1,26 +1,27 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using MemeSite.Data;
 using MemeSite.Model;
-using MemeSite.Repositories;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.Extensions.Options;
+using MemeSite.Repositories;
 
 
 namespace MemeSite
@@ -45,13 +46,17 @@ namespace MemeSite
                     builder =>
                     {
                         builder
-                        .AllowAnyOrigin()
+                        //.AllowAnyOrigin()
+                        .WithOrigins("http://localhost:4200")
+                        .WithHeaders("Access-Control-Allow-Origin", "*")
                         .AllowAnyMethod()
-                        .AllowAnyHeader();
+                        .AllowAnyHeader()
+                        .AllowCredentials();
                     });
             });
 
             services.AddControllers();
+
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
@@ -91,12 +96,6 @@ namespace MemeSite
                 };
             });
 
-            services.Configure<FormOptions>(o => {
-                o.ValueLengthLimit = int.MaxValue;
-                o.MultipartBodyLengthLimit = int.MaxValue;
-                o.MemoryBufferThreshold = int.MaxValue;
-            });
-
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<IMemeRepository, MemeRepository>();
@@ -110,24 +109,14 @@ namespace MemeSite
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, UserManager<PageUser> userManager, RoleManager<PageRole> roleManager)
+        public void Configure(IApplicationBuilder app, UserManager<PageUser> userManager, RoleManager<PageRole> roleManager)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseHsts();
-            }
+            app.UseCors("AllowAll");
 
             DataSeeder.SeedData(userManager, roleManager);
 
             app.UseRouting();
-            app.UseCors("AllowAll");
-
-            app.UseStaticFiles();
-
+            
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -142,11 +131,6 @@ namespace MemeSite
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-            });
-
-            app.Run(async (context) =>
-            {
-                await context.Response.WriteAsync("MVC didn't find anything!");
             });
         }
     }

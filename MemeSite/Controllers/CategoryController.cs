@@ -21,8 +21,10 @@ namespace MemeSite.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public List<CategoryVM> GetCategories()
         {
+            string userId = User.Claims.First(c => c.Type == "UserID").Value;
             var categories = _categoryRepository.GetCategories();
             return categories;
         }

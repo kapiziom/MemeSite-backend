@@ -14,7 +14,8 @@ namespace MemeSite.ViewModels
         public string Txt { get; set; }
         [Required]
         public int CategoryId { get; set; }
-        public IFormFile File { get; set; }
+        public string FileName { get; set; }
+        public string ByteHead { get; set; }
         public byte[] FileByte { get; set; }
     }
 }
