@@ -15,8 +15,8 @@ namespace MemeSite.Model
         public int Value { get; set; }//-1 or 1
 
         [Required]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         [Required]
-        public int MemeId { get; set; }
+        public int MemeRefId { get; set; }
     }
 }

@@ -8,5 +8,9 @@ namespace MemeSite.Repositories
     public interface IMemeRepository
     {
         void UploadMeme(MemeUploadVM m, string userId);
+        List<MemeVM> GetMemes();
+        MemePagedListVM GetPagedMemes(int page);
+        int GetMemeRate(int id);
+        
     }
 }

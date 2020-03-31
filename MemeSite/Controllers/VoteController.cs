@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MemeSite.Repositories;
+using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,16 +23,19 @@ namespace MemeSite.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult AddVote()
+        public IActionResult SendVote([FromBody] SendVoteVM vote)
         {
-            return Ok();
+            string userId = User.Claims.First(c => c.Type == "UserID").Value;
+            bool result = _voteRepository.SendVote(vote, userId);
+            if (result == true)
+            {
+                return Ok(vote);
+            }
+            else return Conflict();
+            
         }
 
-        [HttpDelete]
-        [Authorize]
-        public IActionResult DeleteVote()
-        {
-            return Ok();
-        }
+        
+
     }
 }

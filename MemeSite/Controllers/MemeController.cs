@@ -28,18 +28,37 @@ namespace MemeSite.Controllers
             _environment = webHostEnvironment;
         }
 
+        [HttpGet]
+        public List<MemeVM> GetMemes()
+        {
+            List<MemeVM> memes = _memeRepository.GetMemes();
+            return memes;
+        }
+
+        [HttpGet("Page/{page}")]
+        public MemePagedListVM GetPagedList(int page)
+        {
+            var memes = _memeRepository.GetPagedMemes(page);
+            return memes;
+        }
+
         [HttpPost]
         [Authorize]
         public IActionResult AddMeme([FromBody] MemeUploadVM model)
         {
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
             _memeRepository.UploadMeme(model, userId);
-
-
             return Ok(model);
         }
 
-        
+        [HttpGet("GetRate/{id}")]
+        public int AfterVote(int id)
+        {
+            int newRate = _memeRepository.GetMemeRate(id);
+            return newRate;
+        }
+
+
 
 
         [HttpPut]

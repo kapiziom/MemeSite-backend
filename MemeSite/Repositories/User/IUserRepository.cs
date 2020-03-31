@@ -6,6 +6,6 @@ namespace MemeSite.Repositories
 {
     public interface IUserRepository
     {
-        
+        string GetUsernameById(string userId);
     }
 }

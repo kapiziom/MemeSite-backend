@@ -23,7 +23,7 @@ namespace MemeSite.Repositories
             var comment = new Comment()
             {
                 CreationDate = DateTime.Now,
-                MemeId = AddComment.MemeId,
+                MemeRefId = AddComment.MemeId,
                 Txt = AddComment.Txt,
                 PageUser = user,
                 UserID = user.Id,

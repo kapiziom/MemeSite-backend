@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MemeSite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200328234449_Init")]
-    partial class Init
+    [Migration("20200330131148_Upd30320202")]
+    partial class Upd30320202
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -85,16 +85,19 @@ namespace MemeSite.Migrations
                     b.Property<DateTime?>("AccpetanceDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("ByteHead")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ImageName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<byte[]>("ImageByte")
+                        .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("ImagePath")
+                    b.Property<string>("ImageName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAccepted")
@@ -226,8 +229,9 @@ namespace MemeSite.Migrations
                     b.Property<int>("MemeId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Value")
                         .HasColumnType("int");
@@ -345,7 +349,7 @@ namespace MemeSite.Migrations
 
             modelBuilder.Entity("MemeSite.Model.Comment", b =>
                 {
-                    b.HasOne("MemeSite.Model.Meme", null)
+                    b.HasOne("MemeSite.Model.Meme", "Meme")
                         .WithMany("Comments")
                         .HasForeignKey("MemeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -358,7 +362,7 @@ namespace MemeSite.Migrations
 
             modelBuilder.Entity("MemeSite.Model.Vote", b =>
                 {
-                    b.HasOne("MemeSite.Model.Meme", null)
+                    b.HasOne("MemeSite.Model.Meme", "Meme")
                         .WithMany("Votes")
                         .HasForeignKey("MemeId")
                         .OnDelete(DeleteBehavior.Cascade)

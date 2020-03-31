@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MemeSite.Migrations
 {
-    public partial class Init : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -72,9 +72,10 @@ namespace MemeSite.Migrations
                     IsAccepted = table.Column<bool>(nullable: false),
                     IsArchivized = table.Column<bool>(nullable: false),
                     AccpetanceDate = table.Column<DateTime>(nullable: true),
-                    ImageName = table.Column<string>(nullable: true),
-                    ImagePath = table.Column<string>(nullable: true),
                     Uri = table.Column<string>(nullable: true),
+                    ImageName = table.Column<string>(nullable: true),
+                    ByteHead = table.Column<string>(nullable: true),
+                    ImageByte = table.Column<byte[]>(nullable: true),
                     UserID = table.Column<string>(nullable: true),
                     CategoryId = table.Column<int>(nullable: false)
                 },

@@ -23,6 +23,7 @@ namespace MemeSite.Model
         public string ByteHead { get; set; }
         public byte[] ImageByte { get; set; }
         public string UserID { get; set; }
+
         public int CategoryId { get; set; }
         public List<Comment> Comments { get; set; }
         public List<Vote> Votes { get; set; }

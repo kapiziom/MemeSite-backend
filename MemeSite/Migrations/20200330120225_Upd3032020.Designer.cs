@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MemeSite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200330001253_editmememodel")]
-    partial class editmememodel
+    [Migration("20200330120225_Upd3032020")]
+    partial class Upd3032020
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -88,7 +88,7 @@ namespace MemeSite.Migrations
                     b.Property<string>("ByteHead")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreationDate")
@@ -120,6 +120,8 @@ namespace MemeSite.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("MemeId");
+
+                    b.HasIndex("CategoryId");
 
                     b.ToTable("Memes");
                 });
@@ -229,8 +231,9 @@ namespace MemeSite.Migrations
                     b.Property<int>("MemeId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Value")
                         .HasColumnType("int");
@@ -348,7 +351,7 @@ namespace MemeSite.Migrations
 
             modelBuilder.Entity("MemeSite.Model.Comment", b =>
                 {
-                    b.HasOne("MemeSite.Model.Meme", null)
+                    b.HasOne("MemeSite.Model.Meme", "Meme")
                         .WithMany("Comments")
                         .HasForeignKey("MemeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -359,9 +362,16 @@ namespace MemeSite.Migrations
                         .HasForeignKey("PageUserId");
                 });
 
+            modelBuilder.Entity("MemeSite.Model.Meme", b =>
+                {
+                    b.HasOne("MemeSite.Model.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId");
+                });
+
             modelBuilder.Entity("MemeSite.Model.Vote", b =>
                 {
-                    b.HasOne("MemeSite.Model.Meme", null)
+                    b.HasOne("MemeSite.Model.Meme", "Meme")
                         .WithMany("Votes")
                         .HasForeignKey("MemeId")
                         .OnDelete(DeleteBehavior.Cascade)

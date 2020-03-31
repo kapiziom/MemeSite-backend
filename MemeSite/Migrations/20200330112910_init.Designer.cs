@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MemeSite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200329204535_byteimg")]
-    partial class byteimg
+    [Migration("20200330112910_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -85,6 +85,9 @@ namespace MemeSite.Migrations
                     b.Property<DateTime?>("AccpetanceDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("ByteHead")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
@@ -95,9 +98,6 @@ namespace MemeSite.Migrations
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("ImageName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImagePath")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAccepted")

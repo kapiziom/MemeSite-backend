@@ -92,6 +92,28 @@ namespace MemeSite.Repositories
             else return false;
         }
 
+        public Category GetCategoryById(int id)
+        {
+            var category = _applicationDbContext.Categories.FirstOrDefault(m => m.CategoryId == id);
+            return category;
+        }
+
+        public string CategoryNameById(int id)
+        {
+            var category = _applicationDbContext.Categories.FirstOrDefault(m => m.CategoryId == id);
+            return category.CategoryName;
+        }
+
+        public CategoryVM GetCategoryVM(int id)
+        {
+            var category = _applicationDbContext.Categories.FirstOrDefault(m => m.CategoryId == id);
+            var categoryVM = new CategoryVM()
+            {
+                CategoryId = category.CategoryId,
+                CategoryName = category.CategoryName,
+            };
+            return categoryVM;
+        }
 
     }
 }

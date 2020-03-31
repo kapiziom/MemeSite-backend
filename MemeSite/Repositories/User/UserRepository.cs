@@ -4,6 +4,7 @@ using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,7 +21,11 @@ namespace MemeSite.Repositories
             _userManager = userManager;
         }
 
-        
+        public string GetUsernameById(string userId)
+        {
+            var user = _applicationDbContext.Users.FirstOrDefault(m => m.Id == userId);
+            return user.UserName;
+        }
 
     }
 }
