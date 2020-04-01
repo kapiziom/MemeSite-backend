@@ -20,6 +20,13 @@ namespace MemeSite.Controllers
             _commentRepository = commentRepository;
         }
 
+        [HttpGet("{memeId}")]
+        public List<CommentVM> GetComments(int memeId)
+        {
+            List<CommentVM> comments = _commentRepository.GetCommentsAssignedToMeme(memeId);
+            return comments;
+        }
+
         [HttpPost]
         [Authorize]
         public IActionResult AddComment(AddCommentVM comment)

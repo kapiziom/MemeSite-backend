@@ -11,10 +11,31 @@ namespace MemeSite.Repositories
     public class CommentRepository : ICommentRepository
     {
         private readonly ApplicationDbContext _applicationDbContext;
+        private readonly IUserRepository _userRepository;
 
-        public CommentRepository(ApplicationDbContext context)
+        public CommentRepository(ApplicationDbContext context, IUserRepository userRepository)
         {
             _applicationDbContext = context;
+            _userRepository = userRepository;
+        }
+
+        public List<CommentVM> GetCommentsAssignedToMeme(int memeId)
+        {
+            var comments = _applicationDbContext.Comments.Where(m => m.MemeRefId == memeId);
+            List<CommentVM> commentsVM = new List<CommentVM>();
+            foreach(var m in comments)
+            {
+                var comment = new CommentVM()
+                {
+                    CommentId = m.CommentId,
+                    Txt = m.Txt,
+                    CreationDate = m.CreationDate.ToString("dd/MM/yyyy"),
+                    EditDate = m.EditDate?.ToString("dd/MM/yyyy"),
+                    UserName = _userRepository.GetUsernameById(m.UserID),
+                };
+                commentsVM.Add(comment);
+            }
+            return commentsVM;
         }
 
         public void AddComment(AddCommentVM AddComment, string userId)

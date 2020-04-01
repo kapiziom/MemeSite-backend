@@ -21,7 +21,7 @@ namespace MemeSite.Controllers
             _voteRepository = voteRepository;
         }
 
-        [HttpPost]
+        [HttpPost("SendVote")]
         [Authorize]
         public IActionResult SendVote([FromBody] SendVoteVM vote)
         {

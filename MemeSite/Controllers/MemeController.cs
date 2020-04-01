@@ -28,17 +28,31 @@ namespace MemeSite.Controllers
             _environment = webHostEnvironment;
         }
 
-        [HttpGet]
-        public List<MemeVM> GetMemes()
+        [HttpGet("{page}/{items}")]
+        public MemePagedListVM GetPagedListAcceptedContent(int page, int items)
         {
-            List<MemeVM> memes = _memeRepository.GetMemes();
+            var memes = _memeRepository.GetPagedMemes(page, items);
             return memes;
         }
 
-        [HttpGet("Page/{page}")]
-        public MemePagedListVM GetPagedList(int page)
+        [HttpGet("unAccepted/{page}/{items}")]
+        public MemePagedListVM GetPagedListUnacceptedContent(int page, int items)
         {
-            var memes = _memeRepository.GetPagedMemes(page);
+            var memes = _memeRepository.GetUnacceptedMemes(page, items);
+            return memes;
+        }
+
+        [HttpGet("{categoryName}/{page}/{items}")]
+        public MemePagedListVM GetPagedListByCategory(string categoryName, int page, int items)
+        {
+            var memes = _memeRepository.GetPagedMemesByCategory(categoryName, page, items);
+            return memes;
+        }
+
+        [HttpGet("Archivized/{page}/{items}")]
+        public MemePagedListVM GetArchivizedContent(int page, int items)
+        {
+            var memes = _memeRepository.GetArchivizedMemes(page, items);
             return memes;
         }
 
@@ -51,6 +65,29 @@ namespace MemeSite.Controllers
             return Ok(model);
         }
 
+        [HttpGet("{memeId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public MemeDetailsVM MemeDetails(int memeId)
+        {
+            var meme = _memeRepository.GetMemeDetailsById(memeId);
+            return meme;
+        }
+
+        [HttpPut("{memeId}")]
+        [Authorize]
+        public IActionResult EditMeme(int id)
+        {
+            return Ok();
+        }
+
+        [HttpDelete("{memeId}")]
+        [Authorize]
+        public IActionResult DeleteMeme()
+        {
+            return Ok();
+        }
+
         [HttpGet("GetRate/{id}")]
         public int AfterVote(int id)
         {
@@ -61,18 +98,6 @@ namespace MemeSite.Controllers
 
 
 
-        [HttpPut]
-        [Authorize]
-        public IActionResult EditMeme()
-        {
-            return Ok();
-        }
-
-        [HttpDelete]
-        [Authorize]
-        public IActionResult DeleteMeme()
-        {
-            return Ok();
-        }
+        
     }
 }

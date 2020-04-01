@@ -21,34 +21,8 @@ namespace MemeSite.Repositories
             _categoryRepository = categoryRepository;
         }
 
-        public List<MemeVM> GetMemes()
-        {
-            List<Meme> items = _applicationDbContext.Memes.ToList();
-            List<MemeVM> memes = new List<MemeVM>();
-            
-            foreach (var b in items)
-            {
-                MemeVM meme = new MemeVM()
-                {
-                    MemeId = b.MemeId,
-                    Title = b.Title,
-                    UserName = _userRepository.GetUsernameById(b.UserID),
-                    ByteHead = b.ByteHead,
-                    ByteImg = b.ImageByte,
-                    Category = _categoryRepository.GetCategoryVM(b.CategoryId),
-                    CreationDate = b.CreationDate.ToString("dd/MM/yyyy"),
-                    Rate = 100,//do zrobienia
-                    CommentCount = 100,//do zrobienia
-                };
-                memes.Add(meme);
-            }
-            return memes.ToList();
-        }
-
-
         public void UploadMeme(MemeUploadVM model, string userId)
         {
-            var category = _categoryRepository.GetCategoryById(model.CategoryId);
             var meme = new Meme()
             {
                 Title = model.Title,
@@ -68,17 +42,38 @@ namespace MemeSite.Repositories
             _applicationDbContext.SaveChanges();
         }
 
-        public MemePagedListVM GetPagedMemes(int page)
+        public MemeDetailsVM GetMemeDetailsById(int id)
         {
-            int defaultPageCount = 1;
+            var meme = _applicationDbContext.Memes.FirstOrDefault(m => m.MemeId == id);
+            if(meme == null)
+            {
+                return null;
+            }
+            var memeVM = new MemeDetailsVM()
+            {
+                MemeId = meme.MemeId,
+                Title = meme.Title,
+                UserName = _userRepository.GetUsernameById(meme.UserID),
+                ByteHead = meme.ByteHead,
+                ByteImg = meme.ImageByte,
+                Category = _categoryRepository.GetCategoryVM(meme.CategoryId),
+                CreationDate = meme.CreationDate.ToString("dd/MM/yyyy"),
+                Rate = GetMemeRate(meme.MemeId),
+                CommentCount = 100,//do zrobienia
+            };
+            return memeVM;
+        }
+
+        public MemePagedListVM GetPagedMemes(int page, int itemsPerPage)
+        {
             var MemeList = new MemePagedListVM { PageCount = 1 };
             var MemesVM = new List<MemeVM>();
-            List<Meme> memes = _applicationDbContext.Memes.OrderByDescending(m => m.CreationDate).ToList();
+            List<Meme> memes = _applicationDbContext.Memes.Where(m => m.IsAccepted == true && m.IsArchivized == false).OrderByDescending(m => m.AccpetanceDate).ToList();
 
             //available pages
-            MemeList.PageCount = (int)Math.Ceiling(((double)memes.Count() / defaultPageCount));
+            MemeList.PageCount = (int)Math.Ceiling(((double)memes.Count() / itemsPerPage));
 
-            memes = memes.Skip((page - 1) * defaultPageCount).Take(defaultPageCount).ToList();
+            memes = memes.Skip((page - 1) * itemsPerPage).Take(itemsPerPage).ToList();
             //create model
             foreach (var b in memes)
             {
@@ -94,8 +89,100 @@ namespace MemeSite.Repositories
                     Rate = GetMemeRate(b.MemeId),
                     CommentCount = 100,//do zrobienia
                 };
+                MemesVM.Add(meme);
+            }
+            MemeList.MemeList = MemesVM;
+            return MemeList;
+        }
 
+        public MemePagedListVM GetPagedMemesByCategory(string category, int page, int itemsPerPage)
+        {
+            var MemeList = new MemePagedListVM { PageCount = 1 };
+            var MemesVM = new List<MemeVM>();
+            var categoryModel = _applicationDbContext.Categories.FirstOrDefault(m => m.CategoryName == category);
+            List<Meme> memes = _applicationDbContext.Memes.Where(m => m.CategoryId == categoryModel.CategoryId && m.IsArchivized == false).OrderByDescending(m => m.CreationDate).ToList();
+           
+            //available pages
+            MemeList.PageCount = (int)Math.Ceiling(((double)memes.Count() / itemsPerPage));
 
+            memes = memes.Skip((page - 1) * itemsPerPage).Take(itemsPerPage).ToList();
+            //create model
+            foreach (var b in memes)
+            {
+                var meme = new MemeVM
+                {
+                    MemeId = b.MemeId,
+                    Title = b.Title,
+                    UserName = _userRepository.GetUsernameById(b.UserID),
+                    ByteHead = b.ByteHead,
+                    ByteImg = b.ImageByte,
+                    Category = _categoryRepository.GetCategoryVM(b.CategoryId),
+                    CreationDate = b.CreationDate.ToString("dd/MM/yyyy"),
+                    Rate = GetMemeRate(b.MemeId),
+                    CommentCount = 100,//do zrobienia
+                };
+                MemesVM.Add(meme);
+            }
+            MemeList.MemeList = MemesVM;
+            return MemeList;
+        }
+
+        public MemePagedListVM GetUnacceptedMemes(int page, int itemsPerPage)
+        {
+            var MemeList = new MemePagedListVM { PageCount = 1 };
+            var MemesVM = new List<MemeVM>();
+            List<Meme> memes = _applicationDbContext.Memes.Where(m => m.IsAccepted == false && m.IsArchivized == false).OrderByDescending(m => m.CreationDate).ToList(); ;
+
+            //available pages
+            MemeList.PageCount = (int)Math.Ceiling(((double)memes.Count() / itemsPerPage));
+
+            memes = memes.Skip((page - 1) * itemsPerPage).Take(itemsPerPage).ToList();
+            //create model
+            foreach (var b in memes)
+            {
+                var meme = new MemeVM
+                {
+                    MemeId = b.MemeId,
+                    Title = b.Title,
+                    UserName = _userRepository.GetUsernameById(b.UserID),
+                    ByteHead = b.ByteHead,
+                    ByteImg = b.ImageByte,
+                    Category = _categoryRepository.GetCategoryVM(b.CategoryId),
+                    CreationDate = b.CreationDate.ToString("dd/MM/yyyy"),
+                    Rate = GetMemeRate(b.MemeId),
+                    CommentCount = 100,//do zrobienia
+                };
+                MemesVM.Add(meme);
+            }
+            MemeList.MemeList = MemesVM;
+            return MemeList;
+        }
+
+        public MemePagedListVM GetArchivizedMemes(int page, int itemsPerPage)
+        {
+            var MemeList = new MemePagedListVM { PageCount = 1 };
+            var MemesVM = new List<MemeVM>();
+            List<Meme> memes = _applicationDbContext.Memes.Where(m => m.IsArchivized == true).OrderByDescending(m => m.CreationDate).ToList(); ;
+
+            //available pages
+            MemeList.PageCount = (int)Math.Ceiling(((double)memes.Count() / itemsPerPage));
+
+            memes = memes.Skip((page - 1) * itemsPerPage).Take(itemsPerPage).ToList();
+            //create model
+            foreach (var b in memes)
+            {
+                var meme = new MemeVM
+                {
+                    MemeId = b.MemeId,
+                    Title = b.Title,
+                    UserName = _userRepository.GetUsernameById(b.UserID),
+                    ByteHead = b.ByteHead,
+                    ByteImg = b.ImageByte,
+                    Category = _categoryRepository.GetCategoryVM(b.CategoryId),
+                    CreationDate = b.CreationDate.ToString("dd/MM/yyyy"),
+                    Rate = GetMemeRate(b.MemeId),
+                    CommentCount = 100,//do zrobienia
+                };
                 MemesVM.Add(meme);
             }
             MemeList.MemeList = MemesVM;
