@@ -1,8 +1,11 @@
 ﻿using System;
+using AutoMapper;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MemeSite.Model;
 using MemeSite.Repositories;
+using MemeSite.Services;
 using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -14,50 +17,61 @@ namespace MemeSite.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly ICategoryRepository _categoryRepository;
-        public CategoryController(ICategoryRepository categoryRepository)
+        private readonly ICategoryService _categoryService;
+        public CategoryController(ICategoryService categoryService)
         {
-            _categoryRepository = categoryRepository;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
-        public List<CategoryVM> GetCategories()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<ActionResult<Category>> GetAllCategories()
         {
-            var categories = _categoryRepository.GetCategories();
-            return categories;
+            var categories = await _categoryService.GetAllAsync();
+            return Ok(categories);
         }
 
-
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<ActionResult<Category>> GetCategoryById(int id)
+        {
+            var category = await _categoryService.FindAsync(id);
+            return Ok(category);
+        }
+       
         [HttpPost]
-        [Authorize(Roles = "Administrator")]
-        public IActionResult PostCategory([FromBody] CreateCategoryVM category)
+        //[Authorize(Roles = "Administrator")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryVM category)
         {
-            var isInDb = _categoryRepository.IsInDatabase(category.CategoryName);
-            if(isInDb == true)
-            {
-                return Conflict(new { message = "Category is already exist" });
-            }
-            else
-            {
-                var result = _categoryRepository.PostCategory(category);
-                return Ok(result);
-            }
-        }
-
-        [HttpPut("{id}")]
-        [Authorize(Roles = "Administrator")]
-        public IActionResult PutCategory([FromBody] CreateCategoryVM category, int id)
-        {
-            var result = _categoryRepository.PutCategory(category, id);
-            return Ok(result);
+            await _categoryService.InsertCategory(category);
+            return Ok();
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Administrator")]
-        public IActionResult DeleteCategory(int id)
+        //[Authorize(Roles = "Administrator")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteCategory(int id)
         {
-            var result = _categoryRepository.DeleteCategory(id);
-            if (result == true)
+            var result = await _categoryService.DeleteCategory(id);
+            if (result == false)
+            {
+                return BadRequest();
+            }
+            else return Ok();
+        }
+
+        [HttpPut("{id}")]
+        //[Authorize(Roles = "Administrator")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateCategory([FromBody] CreateCategoryVM category, int id)
+        {
+            if (await _categoryService.UpdateCategory(category, id) == true)
             {
                 return Ok();
             }

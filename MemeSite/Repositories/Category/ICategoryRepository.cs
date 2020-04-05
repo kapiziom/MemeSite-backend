@@ -4,18 +4,23 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace MemeSite.Repositories
 {
-    public interface ICategoryRepository
+    public interface ICategoryRepository : IGenericRepository<Category>
     {
-        List<CategoryVM> GetCategories();
         CategoryVM GetCategoryVM(int id);
-        Category PutCategory(CreateCategoryVM categoriesVM, int id);
-        Category PostCategory(CreateCategoryVM categoriesVM);
-        Category GetCategoryById(int id);
-        string CategoryNameById(int id);
-        bool IsInDatabase(string name);
-        bool DeleteCategory(int id);//delete only if there is no memes with the category
+
+
+        Task<Category> GetById(int id);
+        Task<Category> GetByName(string name);
+        Task<Category> Get(Category category);
+        Task<List<Category>> GetAllCategories();
+        Task DeleteCategory1(int id);
+        Task DeleteCategory1(Category category);
+        Task InsertCategory(Category category);
+        Task UpdateCategory(Category category);
+
     }
 }

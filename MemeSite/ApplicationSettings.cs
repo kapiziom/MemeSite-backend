@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MemeSite.Model
+namespace MemeSite
 {
     public class ApplicationSettings
     {

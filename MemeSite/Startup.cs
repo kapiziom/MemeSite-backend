@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.Options;
 using MemeSite.Repositories;
-
+using MemeSite.Services;
 
 namespace MemeSite
 {
@@ -101,6 +101,10 @@ namespace MemeSite
             services.AddScoped<IMemeRepository, MemeRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IVoteRepository, VoteRepository>();
+
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<ICommentService, CommentService>();
+            services.AddScoped<IVoteService, VoteService>();
 
             services.AddSwaggerGen(c =>
             {

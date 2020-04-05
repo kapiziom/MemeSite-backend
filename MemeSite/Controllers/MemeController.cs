@@ -31,28 +31,28 @@ namespace MemeSite.Controllers
         [HttpGet("{page}/{items}")]
         public MemePagedListVM GetPagedListAcceptedContent(int page, int items)
         {
-            var memes = _memeRepository.GetPagedMemes(page, items);
+            var memes = _memeRepository.GetPagedMemes(page, items, User);
             return memes;
         }
 
         [HttpGet("unAccepted/{page}/{items}")]
         public MemePagedListVM GetPagedListUnacceptedContent(int page, int items)
         {
-            var memes = _memeRepository.GetUnacceptedMemes(page, items);
+            var memes = _memeRepository.GetUnacceptedMemes(page, items, User);
             return memes;
         }
 
         [HttpGet("{categoryName}/{page}/{items}")]
         public MemePagedListVM GetPagedListByCategory(string categoryName, int page, int items)
         {
-            var memes = _memeRepository.GetPagedMemesByCategory(categoryName, page, items);
+            var memes = _memeRepository.GetPagedMemesByCategory(categoryName, page, items, User);
             return memes;
         }
 
         [HttpGet("Archivized/{page}/{items}")]
         public MemePagedListVM GetArchivizedContent(int page, int items)
         {
-            var memes = _memeRepository.GetArchivizedMemes(page, items);
+            var memes = _memeRepository.GetArchivedMemes(page, items, User);
             return memes;
         }
 
@@ -68,16 +68,58 @@ namespace MemeSite.Controllers
         [HttpGet("{memeId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public MemeDetailsVM MemeDetails(int memeId)
+        public async Task<MemeDetailsVM> MemeDetails(int memeId)
         {
-            var meme = _memeRepository.GetMemeDetailsById(memeId);
+            var meme = await _memeRepository.GetMemeDetailsById(memeId, User);
+            return meme;
+        }
+
+        [HttpGet("{memeId}/12")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public MemeDetailsVM MemeDetails2(int memeId)
+        {
+            //var meme = new MemeDetailsVM();
+            var meme = _memeRepository.GetMemeDetailsById1(memeId, User);
+            //if (User.Identity.IsAuthenticated == true)
+            //{
+
+            //    string userId = User.Claims.First(c => c.Type == "UserID").Value;
+            //    meme = _memeRepository.GetMemeDetailsById1(memeId, userId, user);
+            //}
+            //else
+            //{
+            //meme = _memeRepository.GetMemeDetailsById1(memeId, System.Security.Claims.ClaimsPrincipal.Current);
+            //}
             return meme;
         }
 
         [HttpPut("{memeId}")]
         [Authorize]
-        public IActionResult EditMeme(int id)
+        public IActionResult EditMeme(int memeId)
         {
+            return Ok();
+        }
+
+
+
+        [HttpPut("ChangeAccpetanceStatus/{memeId}/{value}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //[Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> AcceptanceStatus(int memeId, bool value)
+        {
+            await _memeRepository.ChangeAccpetanceStatus(memeId, value);
+            return Ok();
+        }
+
+        [HttpPut("ChangeArchiveStatus/{memeId}/{value}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //[Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> ArchiveStatus(int memeId, bool value)
+        {
+            await _memeRepository.ChangeArchiveStatus(memeId, value);
             return Ok();
         }
 
@@ -87,16 +129,6 @@ namespace MemeSite.Controllers
         {
             return Ok();
         }
-
-        [HttpGet("GetRate/{id}")]
-        public int AfterVote(int id)
-        {
-            int newRate = _memeRepository.GetMemeRate(id);
-            return newRate;
-        }
-
-
-
 
         
     }

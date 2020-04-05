@@ -5,23 +5,24 @@ using System.Linq;
 using System.Text;
 using MemeSite.ViewModels;
 using MemeSite.Data;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace MemeSite.Repositories
 {
-    public class CommentRepository : ICommentRepository
+    public class CommentRepository : GenericRepository<Comment>, ICommentRepository
     {
-        private readonly ApplicationDbContext _applicationDbContext;
         private readonly IUserRepository _userRepository;
 
-        public CommentRepository(ApplicationDbContext context, IUserRepository userRepository)
+        public CommentRepository(ApplicationDbContext _applicationDbContext, IUserRepository userRepository) : base(_applicationDbContext)
         {
-            _applicationDbContext = context;
             _userRepository = userRepository;
         }
 
         public List<CommentVM> GetCommentsAssignedToMeme(int memeId)
         {
-            var comments = _applicationDbContext.Comments.Where(m => m.MemeRefId == memeId);
+            var comments = _applicationDbContext.Comments.Where(m => m.MemeRefId == memeId).OrderByDescending(m => m.CreationDate).ToList();
             List<CommentVM> commentsVM = new List<CommentVM>();
             foreach(var m in comments)
             {
@@ -29,8 +30,27 @@ namespace MemeSite.Repositories
                 {
                     CommentId = m.CommentId,
                     Txt = m.Txt,
-                    CreationDate = m.CreationDate.ToString("dd/MM/yyyy"),
-                    EditDate = m.EditDate?.ToString("dd/MM/yyyy"),
+                    CreationDate = m.CreationDate.ToString("dd/MM/yyyy hh:mm"),
+                    EditDate = m.EditDate?.ToString("dd/MM/yyyy hh:mm"),
+                    UserName = _userRepository.GetUsernameById(m.UserID),
+                };
+                commentsVM.Add(comment);
+            }
+            return commentsVM;
+        }
+
+        public async Task<List<CommentVM>> GetCommentsAssignedToMeme1(int memeId)
+        {
+            var comments = await _applicationDbContext.Comments.Where(m => m.MemeRefId == memeId).OrderByDescending(m => m.CreationDate).ToListAsync();
+            List<CommentVM> commentsVM = new List<CommentVM>();
+            foreach (var m in comments)
+            {
+                var comment = new CommentVM()
+                {
+                    CommentId = m.CommentId,
+                    Txt = m.Txt,
+                    CreationDate = m.CreationDate.ToString("dd/MM/yyyy hh:mm"),
+                    EditDate = m.EditDate?.ToString("dd/MM/yyyy hh:mm"),
                     UserName = _userRepository.GetUsernameById(m.UserID),
                 };
                 commentsVM.Add(comment);
@@ -48,7 +68,8 @@ namespace MemeSite.Repositories
                 Txt = AddComment.Txt,
                 PageUser = user,
                 UserID = user.Id,
-                IsDeleted = false
+                IsDeleted = false,
+                IsArchived = false,
             };
             _applicationDbContext.Comments.Add(comment);
             _applicationDbContext.SaveChanges();
@@ -75,9 +96,34 @@ namespace MemeSite.Repositories
                 return true;
             }
             else return false;
-            
         }
 
+        public async Task<CommentVM> GetCommentVM(int id)
+        {
+            var m = await _applicationDbContext.Comments.FirstOrDefaultAsync(model => model.CommentId == id);
+            if (m == null)
+            {
+                return null;
+            }
+            var comment = new CommentVM()
+            {
+                CommentId = m.CommentId,
+                Txt = m.Txt,
+                CreationDate = m.CreationDate.ToString("dd/MM/yyyy hh:mm"),
+                EditDate = m.EditDate?.ToString("dd/MM/yyyy hh:mm"),
+                UserName = _userRepository.GetUsernameById(m.UserID),
+            };
+            return comment;
+        }
+
+        public int CommentCount(int memeId)
+        {
+            return _applicationDbContext.Comments.Where(m => m.MemeRefId == memeId).Count();
+        }
+
+
+
+        public async Task<int> CountAsync(Expression<Func<Comment, bool>> filter) => await _applicationDbContext.Comments.CountAsync(filter);
 
     }
 }

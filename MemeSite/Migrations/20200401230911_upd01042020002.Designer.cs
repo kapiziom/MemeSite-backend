@@ -4,14 +4,16 @@ using MemeSite.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MemeSite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200401230911_upd01042020002")]
+    partial class upd01042020002
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,22 +55,31 @@ namespace MemeSite.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("MemeId")
+                        .HasColumnType("int");
+
                     b.Property<int>("MemeRefId")
                         .HasColumnType("int");
+
+                    b.Property<string>("PageUserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Txt")
                         .IsRequired()
                         .HasColumnType("nvarchar(2000)")
                         .HasMaxLength(2000);
 
+                    b.Property<string>("TxtForHtml")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UserID")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CommentId");
 
-                    b.HasIndex("MemeRefId");
+                    b.HasIndex("MemeId");
 
-                    b.HasIndex("UserID");
+                    b.HasIndex("PageUserId");
 
                     b.ToTable("Comments");
                 });
@@ -115,13 +126,9 @@ namespace MemeSite.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserID")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("MemeId");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("UserID");
 
                     b.ToTable("Memes");
                 });
@@ -228,21 +235,22 @@ namespace MemeSite.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int?>("MemeId")
+                        .HasColumnType("int");
+
                     b.Property<int>("MemeRefId")
                         .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Value")
                         .HasColumnType("int");
 
                     b.HasKey("VoteId");
 
-                    b.HasIndex("MemeRefId");
-
-                    b.HasIndex("UserId");
+                    b.HasIndex("MemeId");
 
                     b.ToTable("Votes");
                 });
@@ -353,43 +361,20 @@ namespace MemeSite.Migrations
 
             modelBuilder.Entity("MemeSite.Model.Comment", b =>
                 {
-                    b.HasOne("MemeSite.Model.Meme", "Meme")
+                    b.HasOne("MemeSite.Model.Meme", null)
                         .WithMany("Comments")
-                        .HasForeignKey("MemeRefId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MemeId");
 
                     b.HasOne("MemeSite.Model.PageUser", "PageUser")
                         .WithMany()
-                        .HasForeignKey("UserID");
-                });
-
-            modelBuilder.Entity("MemeSite.Model.Meme", b =>
-                {
-                    b.HasOne("MemeSite.Model.Category", "Category")
-                        .WithMany("Memes")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MemeSite.Model.PageUser", "PageUser")
-                        .WithMany()
-                        .HasForeignKey("UserID");
+                        .HasForeignKey("PageUserId");
                 });
 
             modelBuilder.Entity("MemeSite.Model.Vote", b =>
                 {
-                    b.HasOne("MemeSite.Model.Meme", "Meme")
+                    b.HasOne("MemeSite.Model.Meme", null)
                         .WithMany("Votes")
-                        .HasForeignKey("MemeRefId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MemeSite.Model.PageUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MemeId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

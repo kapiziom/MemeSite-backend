@@ -12,5 +12,6 @@ namespace MemeSite.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
+        public ICollection<Meme> Memes { get; set; }
     }
 }

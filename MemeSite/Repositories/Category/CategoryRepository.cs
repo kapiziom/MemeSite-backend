@@ -7,102 +7,27 @@ using System.Text;
 using MemeSite.Data;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace MemeSite.Repositories
 {
-    public class CategoryRepository : ICategoryRepository
+    public class CategoryRepository : GenericRepository<Category>, ICategoryRepository
     {
-        private readonly ApplicationDbContext _applicationDbContext;
-
-        public CategoryRepository(ApplicationDbContext context)
+        public CategoryRepository(ApplicationDbContext _applicationDbContext) : base(_applicationDbContext)
         {
-            _applicationDbContext = context;
             if (_applicationDbContext.Categories.Count() == 0)
             {
                 _applicationDbContext.Categories.AddRange(new List<Category>
                 {
-                    new Category{CategoryName = "Funny"},
-                    new Category{CategoryName = "Sport"},
-                    new Category{CategoryName = "Animals"},
-                    new Category{CategoryName = "Other"}
+                    new Category{CategoryName = "Funny", Memes = null},
+                    new Category{CategoryName = "Sport", Memes = null},
+                    new Category{CategoryName = "Animals", Memes = null},
+                    new Category{CategoryName = "Other", Memes = null}
                 });
                 _applicationDbContext.SaveChanges();
             }
         }
 
-        public List<CategoryVM> GetCategories()
-        {
-            List<Category> items = _applicationDbContext.Categories.ToList();
-            List<CategoryVM> categories = new List<CategoryVM>();
-            foreach (var c in items)
-            {
-                CategoryVM category = new CategoryVM()
-                {
-                    CategoryId = c.CategoryId,
-                    CategoryName = c.CategoryName
-                };
-                categories.Add(category);
-            }
-            return categories.ToList();
-        }
-
-
-        public Category PostCategory(CreateCategoryVM categoriesVM)
-        {
-            Category category = new Category()
-            {
-                CategoryName = categoriesVM.CategoryName
-            };
-            _applicationDbContext.Categories.Add(category);
-            _applicationDbContext.SaveChanges();
-            return category;
-        }
-
-        public bool IsInDatabase(string name)
-        {
-            var categorymodel = _applicationDbContext.Categories.FirstOrDefault(m => m.CategoryName == name);
-            if (categorymodel == null)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        public Category PutCategory(CreateCategoryVM categoriesVM, int id)
-        {
-            var category = _applicationDbContext.Categories.FirstOrDefault(m => m.CategoryId == id);
-            category.CategoryName = categoriesVM.CategoryName;
-            _applicationDbContext.SaveChanges();
-            return category;
-        }
-
-        public bool DeleteCategory(int id)
-        {
-            var category = _applicationDbContext.Categories.FirstOrDefault(m => m.CategoryId == id);
-            var meme = _applicationDbContext.Memes.FirstOrDefault(m => m.CategoryId == category.CategoryId);
-            if (meme == null)
-            {
-                _applicationDbContext.Categories.Remove(category);
-                _applicationDbContext.SaveChanges();
-                return true;
-            }
-            else return false;
-        }
-
-        public Category GetCategoryById(int id)
-        {
-            var category = _applicationDbContext.Categories.FirstOrDefault(m => m.CategoryId == id);
-            return category;
-        }
-
-        public string CategoryNameById(int id)
-        {
-            var category = _applicationDbContext.Categories.FirstOrDefault(m => m.CategoryId == id);
-            return category.CategoryName;
-        }
 
         public CategoryVM GetCategoryVM(int id)
         {
@@ -115,5 +40,40 @@ namespace MemeSite.Repositories
             return categoryVM;
         }
 
+        public async Task<Category> GetById(int id) => 
+            await _applicationDbContext.Categories
+            .FirstOrDefaultAsync(m => m.CategoryId == id);
+
+        public async Task<Category> Get(Category category) => 
+            await _applicationDbContext.Categories
+            .FirstOrDefaultAsync(m => m.CategoryId == category.CategoryId && m.CategoryName == category.CategoryName);
+
+        public async Task<Category> GetByName(string name) => 
+            await _applicationDbContext.Categories
+            .FirstOrDefaultAsync(m => m.CategoryName == name);
+
+        public async Task<List<Category>> GetAllCategories() => await _applicationDbContext.Categories.ToListAsync();
+
+        public async Task DeleteCategory1(int id)
+        {
+            var category = await GetById(id);
+            _applicationDbContext.Categories.Remove(category);
+            await _applicationDbContext.SaveChangesAsync();
+        }
+        public async Task DeleteCategory1(Category category)
+        {
+            _applicationDbContext.Categories.Remove(category);
+            await _applicationDbContext.SaveChangesAsync();
+        }
+
+        public async Task InsertCategory(Category category)
+        {
+            await _applicationDbContext.Categories.AddAsync(category);
+            await _applicationDbContext.SaveChangesAsync();
+        }
+        public async Task UpdateCategory(Category category)
+        {
+            await _applicationDbContext.SaveChangesAsync();
+        }
     }
 }
