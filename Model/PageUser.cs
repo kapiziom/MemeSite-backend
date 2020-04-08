@@ -9,5 +9,7 @@ namespace MemeSite.Model
     public class PageUser : IdentityUser
     {
         public DateTime CreationDate { get; set; }
+        public ICollection<Comment> Comments { get; set; }
+        public ICollection<Meme> Memes { get; set; }
     }
 }

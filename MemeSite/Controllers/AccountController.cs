@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authorization;
 using MemeSite.Model;
 using MemeSite.ViewModels;
-using MemeSite.Repositories;
+using MemeSite.Repository;
 
 namespace MemeSite.Controllers
 {
@@ -33,7 +33,6 @@ namespace MemeSite.Controllers
 
         [HttpPost]
         [Route("Login")]
-        //POST : /api/ApplicationUser/Login
         public async Task<IActionResult> Login(LoginVM model)
         {
             var user = await _userManager.FindByNameAsync(model.UserName);
@@ -47,7 +46,8 @@ namespace MemeSite.Controllers
                 {
                     Subject = new ClaimsIdentity(new Claim[]
                     {
-                        new Claim("UserID",user.Id.ToString()),
+                        new Claim("UserID", user.Id.ToString()),
+                        new Claim("userName", user.UserName),
                         new Claim(_options.ClaimsIdentity.RoleClaimType, role.FirstOrDefault())
                     }),
                     Expires = DateTime.UtcNow.AddDays(1),

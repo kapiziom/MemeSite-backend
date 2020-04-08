@@ -9,6 +9,7 @@ namespace MemeSite.ViewModels
     public class MemeVM
     {
         public int MemeId { get; set; }
+        public string UserId { get; set; }
         public string UserName { get; set; }
         public string CreationDate { get; set; }
         public string Title { get; set; }

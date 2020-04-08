@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MemeSite.Model;
-using MemeSite.Repositories;
+using MemeSite.Repository;
 using MemeSite.Services;
 using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -23,32 +23,32 @@ namespace MemeSite.Controllers
             _categoryService = categoryService;
         }
 
+        [HttpPost]
+        [Authorize(Roles = "Administrator")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryVM category)
+        {
+            await _categoryService.InsertCategory(category);
+            return Ok(category);
+        }
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult<Category>> GetAllCategories()
+        public async Task<ActionResult<CategoryVM>> GetAllCategories()
         {
-            var categories = await _categoryService.GetAllAsync();
+            var categories = await _categoryService.GetCategoriesVM();
             return Ok(categories);
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult<Category>> GetCategoryById(int id)
+        public async Task<ActionResult<CategoryVM>> GetCategory(int id)
         {
-            var category = await _categoryService.FindAsync(id);
-            return Ok(category);
-        }
-       
-        [HttpPost]
-        //[Authorize(Roles = "Administrator")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryVM category)
-        {
-            await _categoryService.InsertCategory(category);
-            return Ok();
+            var categories = await _categoryService.GetCategoryVM(id);
+            return Ok(categories);
         }
 
         [HttpDelete("{id}")]
@@ -77,5 +77,7 @@ namespace MemeSite.Controllers
             }
             else return BadRequest();
         }
+
+
     }
 }

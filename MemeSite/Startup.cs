@@ -21,7 +21,7 @@ using System.Text;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.Options;
-using MemeSite.Repositories;
+using MemeSite.Repository;
 using MemeSite.Services;
 
 namespace MemeSite
@@ -46,12 +46,9 @@ namespace MemeSite
                     builder =>
                     {
                         builder
-                        //.AllowAnyOrigin()
-                        .WithOrigins("http://localhost:4200")
-                        .WithHeaders("Access-Control-Allow-Origin", "*")
+                        .AllowAnyOrigin()
                         .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowCredentials();
+                        .AllowAnyHeader();
                     });
             });
 
@@ -96,15 +93,13 @@ namespace MemeSite
                 };
             });
 
-            services.AddScoped<ICategoryRepository, CategoryRepository>();
-            services.AddScoped<ICommentRepository, CommentRepository>();
-            services.AddScoped<IMemeRepository, MemeRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IVoteRepository, VoteRepository>();
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IVoteService, VoteService>();
+            services.AddScoped<IMemeService, MemeService>();
+            services.AddScoped<IUserService, UserService>();
 
             services.AddSwaggerGen(c =>
             {

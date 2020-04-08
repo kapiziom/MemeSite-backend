@@ -9,10 +9,10 @@
     <Compile Remove="Migrations\20200404222346_Upd542020.Designer.cs" />
     <Compile Remove="Migrations\20200404222951_Upd542020.cs" />
     <Compile Remove="Migrations\20200404222951_Upd542020.Designer.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <Compile Remove="Migrations\20200406234945_CnameUnique.cs" />
+    <Compile Remove="Migrations\20200406234945_CnameUnique.Designer.cs" />
+    <Compile Remove="Migrations\20200409220524_PageuserUpd.cs" />
+    <Compile Remove="Migrations\20200409220524_PageuserUpd.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

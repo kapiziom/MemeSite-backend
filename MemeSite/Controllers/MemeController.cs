@@ -4,7 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MemeSite.Repositories;
+using MemeSite.Model;
+using MemeSite.Repository;
+using MemeSite.Services;
 using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -19,49 +21,51 @@ namespace MemeSite.Controllers
     [ApiController]
     public class MemeController : ControllerBase
     {
-        private readonly IMemeRepository _memeRepository;
+        private readonly IMemeService _memeService;
         public static IWebHostEnvironment _environment;
 
-        public MemeController(IWebHostEnvironment webHostEnvironment, IMemeRepository memeRepository)
+        public MemeController(IWebHostEnvironment webHostEnvironment, IMemeService memeService)
         {
-            _memeRepository = memeRepository;
+            _memeService = memeService;
             _environment = webHostEnvironment;
         }
 
-        [HttpGet("{page}/{items}")]
-        public MemePagedListVM GetPagedListAcceptedContent(int page, int items)
-        {
-            var memes = _memeRepository.GetPagedMemes(page, items, User);
-            return memes;
-        }
+        [HttpGet("{page}/{itemsPerPage}")]
+        public async Task<PagedList<MemeVM>> GetPagedListAccepted(int page, int itemsPerPage) =>
+            await _memeService.GetPagedMemesAsync(m => m.IsAccepted == true && m.IsArchived == false, 
+                m => m.AccpetanceDate, page, itemsPerPage, User);
 
-        [HttpGet("unAccepted/{page}/{items}")]
-        public MemePagedListVM GetPagedListUnacceptedContent(int page, int items)
-        {
-            var memes = _memeRepository.GetUnacceptedMemes(page, items, User);
-            return memes;
-        }
+
+        [HttpGet("unAccepted/{page}/{itemsPerPage}")]
+        public async Task<PagedList<MemeVM>> GetPagedListUnAccepted(int page, int itemsPerPage) =>
+            await _memeService.GetPagedMemesAsync(m => m.IsAccepted == false && m.IsArchived == false, 
+                m => m.CreationDate, page, itemsPerPage, User);
 
         [HttpGet("{categoryName}/{page}/{items}")]
-        public MemePagedListVM GetPagedListByCategory(string categoryName, int page, int items)
-        {
-            var memes = _memeRepository.GetPagedMemesByCategory(categoryName, page, items, User);
-            return memes;
-        }
+        public async Task<PagedList<MemeVM>> GetPagedListByCategory(string categoryName, int page, int items) => 
+            await _memeService.GetPagedMemesAsync(m => m.Category.CategoryName == categoryName && m.IsArchived == false,
+                m => m.CreationDate, page, items, User);
 
-        [HttpGet("Archivized/{page}/{items}")]
-        public MemePagedListVM GetArchivizedContent(int page, int items)
-        {
-            var memes = _memeRepository.GetArchivedMemes(page, items, User);
-            return memes;
-        }
+        [HttpGet("Archive/{page}/{items}")]
+        public async Task<PagedList<MemeVM>> GetPagedListArchive(int page, int items) =>
+            await _memeService.GetPagedMemesAsync(m => m.IsArchived == true,
+                m => m.CreationDate, page, items, User);
+
+        [HttpGet("UserContent/{userName}/{page}/{itemsPerPage}")]
+        public async Task<PagedList<MemeVM>> GetPagedListAssignedToUser(string userName, int page, int itemsPerPage) =>
+            await _memeService.GetPagedMemesAsync(m => m.PageUser.UserName == userName,
+                m => m.CreationDate, page, itemsPerPage, User);
 
         [HttpPost]
         [Authorize]
-        public IActionResult AddMeme([FromBody] MemeUploadVM model)
+        public async Task<IActionResult> UploadMeme([FromBody] MemeUploadVM model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
-            _memeRepository.UploadMeme(model, userId);
+            await _memeService.Upload(model, userId);
             return Ok(model);
         }
 
@@ -70,27 +74,7 @@ namespace MemeSite.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<MemeDetailsVM> MemeDetails(int memeId)
         {
-            var meme = await _memeRepository.GetMemeDetailsById(memeId, User);
-            return meme;
-        }
-
-        [HttpGet("{memeId}/12")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public MemeDetailsVM MemeDetails2(int memeId)
-        {
-            //var meme = new MemeDetailsVM();
-            var meme = _memeRepository.GetMemeDetailsById1(memeId, User);
-            //if (User.Identity.IsAuthenticated == true)
-            //{
-
-            //    string userId = User.Claims.First(c => c.Type == "UserID").Value;
-            //    meme = _memeRepository.GetMemeDetailsById1(memeId, userId, user);
-            //}
-            //else
-            //{
-            //meme = _memeRepository.GetMemeDetailsById1(memeId, System.Security.Claims.ClaimsPrincipal.Current);
-            //}
+            var meme = await _memeService.GetMemeDetailsById(memeId, User);
             return meme;
         }
 
@@ -106,28 +90,33 @@ namespace MemeSite.Controllers
         [HttpPut("ChangeAccpetanceStatus/{memeId}/{value}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> AcceptanceStatus(int memeId, bool value)
         {
-            await _memeRepository.ChangeAccpetanceStatus(memeId, value);
+            await _memeService.ChangeAccpetanceStatus(memeId, value);
             return Ok();
         }
 
         [HttpPut("ChangeArchiveStatus/{memeId}/{value}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> ArchiveStatus(int memeId, bool value)
         {
-            await _memeRepository.ChangeArchiveStatus(memeId, value);
+            await _memeService.ChangeArchiveStatus(memeId, value);
             return Ok();
         }
 
         [HttpDelete("{memeId}")]
         [Authorize]
-        public IActionResult DeleteMeme()
+        public async Task<IActionResult> DeleteMeme(int memeId)
         {
-            return Ok();
+            bool result = await _memeService.DeleteMeme(memeId, User);
+            if(result == true)
+            {
+                return Ok();
+            }
+            return BadRequest();
         }
 
         

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -15,7 +14,10 @@ namespace MemeSite.ViewModels
         [Required]
         public int CategoryId { get; set; }
         public string FileName { get; set; }
+        [Required]
         public string ByteHead { get; set; }
+        [Required]
         public byte[] FileByte { get; set; }
     }
+
 }
