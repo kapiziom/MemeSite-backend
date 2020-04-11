@@ -12,5 +12,8 @@ namespace MemeSite.Services
         Task<UserStatsVM> GetUserStatsByName(string userName);
         Task<UserStatsVM> GetUserStatsById(string userId);
         Task<UserStatsVM> GetUserStats(PageUser user);
+        Task<object> ChangePassword(ChangePasswordVM changePasswordVM, System.Security.Claims.ClaimsPrincipal user);
+        Task<object> ChangeEmail(ChangeEmailVM email, System.Security.Claims.ClaimsPrincipal user);
+        Task<object> ChangeUserName(ChangeUserNameVM username, System.Security.Claims.ClaimsPrincipal user);
     }
 }

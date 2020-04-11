@@ -32,14 +32,14 @@ namespace MemeSite.Controllers
         }
 
         [HttpGet("ListForMeme/{memeId}")]
-        public async Task<List<CommentVM>> GetCommentsAssignedToMeme123(int memeId)
+        public async Task<List<CommentVM>> GetCommentsAssignedToMeme(int memeId)
         {
             List<CommentVM> comments = await _commentService.GetListCommentVM(m => m.MemeRefId == memeId);
             return comments;
         }
 
         [HttpGet("ListForUser/{userName}")]
-        public async Task<List<CommentVM>> GetCommentsAssignedToUser123(string userName)
+        public async Task<List<CommentVM>> GetCommentsAssignedToUser(string userName)
         {
             List<CommentVM> comments = await _commentService.GetListCommentVM(m => m.PageUser.UserName == userName);
             return comments;
@@ -54,19 +54,19 @@ namespace MemeSite.Controllers
                 return BadRequest();
             }
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
-            await _commentService.InsertComment(comment, userId);
-            return Ok(comment);
+            var result = await _commentService.InsertComment(comment, userId);
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> EditComment(AddCommentVM comment, int id)
+        public async Task<IActionResult> EditComment(EditCommentVM comment, int id)
         {
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
             var result = await _commentService.UpdateComment(comment, id, userId);
-            if (result == true)
+            if (result != null)
             {
-                return Ok(comment);
+                return Ok(result);
             }
             else return BadRequest();
         }

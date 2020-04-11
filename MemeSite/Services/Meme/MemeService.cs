@@ -99,7 +99,7 @@ namespace MemeSite.Services
 
             foreach (var m in model.Items)
             {
-                list.Add(await CustomMapMemeVM(m, user));
+                list.Add(await MapMemeVM(m, user));
             }
             VM.Items = list;
             return VM;
@@ -108,7 +108,8 @@ namespace MemeSite.Services
         public async Task<bool> DeleteMeme(int id, System.Security.Claims.ClaimsPrincipal user)
         {
             var meme = await _repository.FindAsync(id);
-            if (user.Claims.First(c => c.Type == "UserID").Value == meme.UserID && meme != null)
+            if (user.Claims.First(c => c.Type == "UserID").Value == meme.UserID ||
+                user.Claims.First(c => c.Type == "role").Value == "Administrator")
             {
                 await _repository.DeleteAsync(meme);
                 return true;
@@ -140,9 +141,21 @@ namespace MemeSite.Services
 
         public async Task<int> Count(Expression<Func<Meme, bool>> filter) => await _repository.CountAsync(filter);
 
+        public async Task<bool> EditMeme(EditMemeVM meme, int id, System.Security.Claims.ClaimsPrincipal user)
+        {
+            var model = await _repository.FindAsync(id);
+            if(model.UserID == user.Claims.First(c => c.Type == "UserID").Value)
+            {
+                model.Title = meme.Title;
+                model.Txt = meme.Txt;
+                model.CategoryId = meme.CategoryId;
+                await _repository.UpdateAsync(model);
+                return true;
+            }
+            else return false;
+        }
 
-
-        public async Task<MemeVM> CustomMapMemeVM(Meme entity, System.Security.Claims.ClaimsPrincipal user)
+        public async Task<MemeVM> MapMemeVM(Meme entity, System.Security.Claims.ClaimsPrincipal user)
         {
             MemeVM vm = new MemeVM();
             vm.MemeId = entity.MemeId;

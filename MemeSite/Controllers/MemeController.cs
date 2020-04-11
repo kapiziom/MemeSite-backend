@@ -80,10 +80,16 @@ namespace MemeSite.Controllers
 
         [HttpPut("{memeId}")]
         [Authorize]
-        public IActionResult EditMeme(int memeId)
+        public async Task<IActionResult> EditMeme(int memeId, [FromBody] EditMemeVM editMeme)
         {
-            return Ok();
+            var result = await _memeService.EditMeme(editMeme, memeId, User);
+            if (result == true)
+            {
+                return Ok();
+            }
+            else return BadRequest();
         }
+            
 
 
 

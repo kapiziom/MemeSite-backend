@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Authorization;
 using MemeSite.Model;
 using MemeSite.ViewModels;
 using MemeSite.Repository;
+using MemeSite.Services;
+using Microsoft.AspNetCore.Authentication;
 
 namespace MemeSite.Controllers
 {
@@ -24,11 +26,15 @@ namespace MemeSite.Controllers
     {
         private readonly UserManager<PageUser> _userManager;
         private readonly ApplicationSettings _appSettings;
+        private readonly IUserService _userService;
 
-        public AccountController(IOptions<ApplicationSettings> appSettings, UserManager<PageUser> userManager)
+        public AccountController(IOptions<ApplicationSettings> appSettings,
+            UserManager<PageUser> userManager,
+            IUserService userService)
         {
             _appSettings = appSettings.Value;
             _userManager = userManager;
+            _userService = userService;
         }
 
         [HttpPost]
@@ -68,8 +74,6 @@ namespace MemeSite.Controllers
             var user = new PageUser { UserName = model.UserName, Email = model.Email, CreationDate = DateTime.Now };
             try
             {
-                var CheckEmail = await _userManager.FindByEmailAsync(model.Email);
-                var CheckUsername = await _userManager.FindByNameAsync(model.UserName);
                 var result = await _userManager.CreateAsync(user, model.Password);
                 await _userManager.AddToRoleAsync(user, "NormalUser");
                 return Ok(result);
@@ -79,5 +83,22 @@ namespace MemeSite.Controllers
                 throw ex;
             }
         }
+
+        [HttpPut("ChangePassword")]
+        [Authorize]
+        public async Task<object> ChangePassword([FromBody] ChangePasswordVM changePasswordVM)
+            => await _userService.ChangePassword(changePasswordVM, User);
+
+        [HttpPut("ChangeUserName")]
+        [Authorize]
+        public async Task<object> ChangeUserName([FromBody] ChangeUserNameVM changeUserNameVM)
+            => await _userService.ChangeUserName(changeUserNameVM, User);
+
+        [HttpPut("ChangeEmail")]
+        [Authorize]
+        public async Task<object> ChangeEmail([FromBody] ChangeEmailVM changeEmailVM)
+            => await _userService.ChangeEmail(changeEmailVM, User);
+
+
     }
 }
