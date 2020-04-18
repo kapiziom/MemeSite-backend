@@ -12,6 +12,7 @@ namespace MemeSite.ViewModels
         public string UserName { get; set; }
         public string CreationDate { get; set; }
         public string Title { get; set; }
+        public string Txt { get; set; }
         public string ByteHead { get; set; }
         public byte[] ByteImg { get; set; }
         public CategoryVM Category { get; set; }

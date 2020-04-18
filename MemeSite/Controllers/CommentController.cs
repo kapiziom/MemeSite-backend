@@ -83,5 +83,10 @@ namespace MemeSite.Controllers
             else return BadRequest();
         }
 
+        [HttpPut("DelTxtAsAdmin/{id}")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<CommentVM> DeleteCommentTxtAsAdmin(int id) => await _commentService.DeleteTxtAsAdmin(id);
+
+
     }
 }

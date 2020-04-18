@@ -58,6 +58,7 @@ namespace MemeSite.Services
             {
                 MemeId = entity.MemeId,
                 Title = entity.Title,
+                Txt = entity.Txt,
                 UserId = entity.UserID,
                 UserName = _userManager.FindByIdAsync(entity.UserID).Result.UserName,
                 ByteHead = entity.ByteHead,
@@ -109,7 +110,7 @@ namespace MemeSite.Services
         {
             var meme = await _repository.FindAsync(id);
             if (user.Claims.First(c => c.Type == "UserID").Value == meme.UserID ||
-                user.Claims.First(c => c.Type == "role").Value == "Administrator")
+                user.Claims.First(c => c.Type == "userRole").Value == "Administrator")
             {
                 await _repository.DeleteAsync(meme);
                 return true;

@@ -13,6 +13,7 @@ namespace MemeSite.Services
         Task<CommentVM> GetCommentVM(int id);
         Task<List<CommentVM>> GetListCommentVM(Expression<Func<Comment, bool>> filter);
         Task<bool> DeleteComment(int id, System.Security.Claims.ClaimsPrincipal user);
+        Task<CommentVM> DeleteTxtAsAdmin(int id);//change txt to [deleted by admin]
         Task<CommentVM> InsertComment(AddCommentVM VM, string userId);
         Task<CommentVM> UpdateComment(EditCommentVM VM, int id, string userId);
         Task<int> CommentCount(int memeId);

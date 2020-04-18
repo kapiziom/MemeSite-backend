@@ -22,12 +22,10 @@ namespace MemeSite.Controllers
     public class MemeController : ControllerBase
     {
         private readonly IMemeService _memeService;
-        public static IWebHostEnvironment _environment;
 
-        public MemeController(IWebHostEnvironment webHostEnvironment, IMemeService memeService)
+        public MemeController(IMemeService memeService)
         {
             _memeService = memeService;
-            _environment = webHostEnvironment;
         }
 
         [HttpGet("{page}/{itemsPerPage}")]

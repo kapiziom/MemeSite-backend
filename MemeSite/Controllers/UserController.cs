@@ -25,7 +25,6 @@ namespace MemeSite.Controllers
         public async Task<UserStatsVM> GetUserStats(string userName) =>
             await _userService.GetUserStatsByName(userName);
 
-   
 
     }
 }

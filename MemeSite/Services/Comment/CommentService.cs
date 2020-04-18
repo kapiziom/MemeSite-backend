@@ -36,7 +36,7 @@ namespace MemeSite.Services
 
         public async Task<CommentVM> GetCommentVM(int id)
         {
-            var m = await _repository.FindAsync(id);//m is comment model
+            var m = await _repository.FindAsync(id);
             if(m == null)
             {
                 return null;
@@ -59,13 +59,24 @@ namespace MemeSite.Services
         public async Task<bool> DeleteComment(int id, System.Security.Claims.ClaimsPrincipal user)
         {
             var comment = await _repository.FindAsync(id);
-            if (user.Claims.First(c => c.Type == "UserID").Value == comment.UserID || 
-                user.Claims.First(c => c.Type == "role").Value == "Administrator")
+            if (user.Claims.First(c => c.Type == "UserID").Value == comment.UserID ||
+                user.Claims.First(c => c.Type == "userRole").Value == "Administrator")
             {
                 await _repository.DeleteAsync(comment);
                 return true;
             }
             else return false;
+        }
+
+        public async Task<CommentVM> DeleteTxtAsAdmin(int id)
+        {
+            var comment = await _repository.FindAsync(id);
+            comment.LastTxt = comment.Txt;
+            comment.IsDeleted = true;
+            comment.Txt = "[Deleted by admin]";
+            await _repository.UpdateAsync(comment);
+            var model = await MapCommentVM(comment);
+            return model;
         }
 
         public async Task<CommentVM> InsertComment(AddCommentVM VM, string userId)
@@ -77,7 +88,6 @@ namespace MemeSite.Services
                 Txt = VM.Txt,
                 UserID = userId,
                 IsDeleted = false,
-                IsArchived = false,
             };
             await _repository.InsertAsync(comment);
             return await MapCommentVM(comment);
@@ -86,8 +96,9 @@ namespace MemeSite.Services
         public async Task<CommentVM> UpdateComment(EditCommentVM VM, int id, string userId)
         {
             var comment = await _repository.FindAsync(id);
-            if (comment.UserID == userId)
+            if (comment.UserID == userId && comment.IsDeleted == false)
             {
+                comment.LastTxt = comment.Txt;
                 comment.Txt = VM.Txt;
                 comment.EditDate = DateTime.Now;
                 await _repository.UpdateAsync(comment);

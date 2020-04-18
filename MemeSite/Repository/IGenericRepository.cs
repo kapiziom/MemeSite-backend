@@ -29,8 +29,5 @@ namespace MemeSite.Repository
         Task UpdateAsync(TEntity entity);
         Task<int> CountAsync(Expression<Func<TEntity, bool>> filter);
         Task<bool> IsExistAsync(Expression<Func<TEntity, bool>> filter);
-
-
-        List<TEntity> GetAllFiltered(Expression<Func<TEntity, bool>> filter);
     }
 }

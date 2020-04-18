@@ -15,5 +15,6 @@ namespace MemeSite.Services
         Task<object> ChangePassword(ChangePasswordVM changePasswordVM, System.Security.Claims.ClaimsPrincipal user);
         Task<object> ChangeEmail(ChangeEmailVM email, System.Security.Claims.ClaimsPrincipal user);
         Task<object> ChangeUserName(ChangeUserNameVM username, System.Security.Claims.ClaimsPrincipal user);
+
     }
 }

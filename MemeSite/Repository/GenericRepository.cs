@@ -31,9 +31,6 @@ namespace MemeSite.Repository
         public async Task<List<TEntity>> GetAllFilteredAsync(Expression<Func<TEntity, bool>> filter) => 
             await _dbSet.Where(filter).ToListAsync();
 
-        public List<TEntity> GetAllFiltered(Expression<Func<TEntity, bool>> filter) =>
-            _dbSet.Where(filter).ToList();
-
         public virtual async Task<List<TEntity>> GetAllFilteredAsync<TKey>(
             Expression<Func<TEntity, bool>> filter,
             Expression<Func<TEntity, TKey>> orderByDescending) => await _dbSet.Where(filter).OrderByDescending(orderByDescending).ToListAsync();
@@ -75,7 +72,7 @@ namespace MemeSite.Repository
 
         public async Task DeleteAsync(TEntity entity)
         {
-             _dbSet.Remove(entity);
+            _dbSet.Remove(entity);
             await _applicationDbContext.SaveChangesAsync();
         }
         public async Task InsertAsync(TEntity entity)

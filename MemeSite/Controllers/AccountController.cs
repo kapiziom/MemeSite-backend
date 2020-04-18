@@ -54,6 +54,7 @@ namespace MemeSite.Controllers
                     {
                         new Claim("UserID", user.Id.ToString()),
                         new Claim("userName", user.UserName),
+                        new Claim("userRole", role.FirstOrDefault()),
                         new Claim(_options.ClaimsIdentity.RoleClaimType, role.FirstOrDefault())
                     }),
                     Expires = DateTime.UtcNow.AddDays(1),

@@ -34,8 +34,6 @@ namespace MemeSite.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult<CategoryVM>> GetAllCategories()
         {
             var categories = await _categoryService.GetCategoriesVM();
@@ -52,7 +50,7 @@ namespace MemeSite.Controllers
         }
 
         [HttpDelete("{id}")]
-        //[Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteCategory(int id)
@@ -66,7 +64,7 @@ namespace MemeSite.Controllers
         }
 
         [HttpPut("{id}")]
-        //[Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateCategory([FromBody] CreateCategoryVM category, int id)
