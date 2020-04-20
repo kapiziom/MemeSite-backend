@@ -57,35 +57,49 @@ namespace MemeSite.Services
             return category.Memes.Count();
         }
 
-        public async Task<bool> DeleteCategory(int id)
+        public async Task<object> DeleteCategory(int id)
         {
-            if(await FindAsync(id) == null || GetCountOfAssignedItems(id) > 0)
+            if (await FindAsync(id) == null)
             {
-                return false;
+                return new NotFoundObjectResult(new { error = "Not Found" });
+            }
+            if(GetCountOfAssignedItems(id) > 0)
+            {
+                return new ConflictObjectResult(new { error = "Delete is impossible. There are items assigned to this category" });
             }
             await _repository.DeleteAsync(id);
-            return true;
+            return new OkObjectResult(new { message = "Deleted" });
         }
 
-        public async Task InsertCategory(CreateCategoryVM categoryVM)
+        public async Task<object> InsertCategory(CreateCategoryVM categoryVM)
         {
+            if (await IsExistAsync(m => m.CategoryName == categoryVM.CategoryName))
+            {
+                return new ConflictObjectResult(new { error = "Category already exist" });
+            }
             Category category = new Category()
             {
                 CategoryName = categoryVM.CategoryName,
             };
             await _repository.InsertAsync(category);
+            return new StatusCodeResult(201);
         }
 
-        public async Task<bool> UpdateCategory(CreateCategoryVM categoryVM, int id)
+
+        public async Task<object> UpdateCategory(CreateCategoryVM categoryVM, int id)
         {
-            var category = await FindAsync(id);
-            if (category != null)
+            if (await IsExistAsync(m => m.CategoryName == categoryVM.CategoryName))
             {
-                category.CategoryName = categoryVM.CategoryName;
-                await _repository.UpdateAsync(category);
-                return true;
+                return new ConflictObjectResult(new { error = "Category already exist" });
             }
-            else return false;
+            var category = await FindAsync(id);
+            if (await FindAsync(id) == null)
+            {
+                return new NotFoundObjectResult(new { error = "Not Found" });
+            }
+            category.CategoryName = categoryVM.CategoryName;
+            await _repository.UpdateAsync(category);
+            return new OkObjectResult(categoryVM);
         }
             
 

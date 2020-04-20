@@ -135,6 +135,7 @@ namespace MemeSite.Services
             }
             else
             {
+                entity.IsAccepted = value;
                 entity.AccpetanceDate = null;
             }
             await _repository.UpdateAsync(entity);

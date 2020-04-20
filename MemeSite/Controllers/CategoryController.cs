@@ -25,56 +25,34 @@ namespace MemeSite.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Administrator")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryVM category)
-        {
-            await _categoryService.InsertCategory(category);
-            return Ok(category);
-        }
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<object> CreateCategory([FromBody] CreateCategoryVM category)
+            => await _categoryService.InsertCategory(category);
 
         [HttpGet]
-        public async Task<ActionResult<CategoryVM>> GetAllCategories()
-        {
-            var categories = await _categoryService.GetCategoriesVM();
-            return Ok(categories);
-        }
+        public async Task<List<CategoryVM>> GetAllCategories()
+            => await _categoryService.GetCategoriesVM();
 
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult<CategoryVM>> GetCategory(int id)
-        {
-            var categories = await _categoryService.GetCategoryVM(id);
-            return Ok(categories);
-        }
+        public async Task<CategoryVM> GetCategory(int id)
+            => await _categoryService.GetCategoryVM(id);
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Administrator")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeleteCategory(int id)
-        {
-            var result = await _categoryService.DeleteCategory(id);
-            if (result == false)
-            {
-                return BadRequest();
-            }
-            else return Ok();
-        }
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<object> DeleteCategory(int id)
+            => await _categoryService.DeleteCategory(id);
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Administrator")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateCategory([FromBody] CreateCategoryVM category, int id)
-        {
-            if (await _categoryService.UpdateCategory(category, id) == true)
-            {
-                return Ok();
-            }
-            else return BadRequest();
-        }
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<object> UpdateCategory([FromBody] CreateCategoryVM category, int id)
+            => await _categoryService.UpdateCategory(category, id);
 
 
     }

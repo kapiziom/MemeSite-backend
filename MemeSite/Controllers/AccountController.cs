@@ -17,6 +17,7 @@ using MemeSite.ViewModels;
 using MemeSite.Repository;
 using MemeSite.Services;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 
 namespace MemeSite.Controllers
 {

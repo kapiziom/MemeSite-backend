@@ -68,13 +68,8 @@ namespace MemeSite.Controllers
         }
 
         [HttpGet("{memeId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<MemeDetailsVM> MemeDetails(int memeId)
-        {
-            var meme = await _memeService.GetMemeDetailsById(memeId, User);
-            return meme;
-        }
+            => await _memeService.GetMemeDetailsById(memeId, User);
 
         [HttpPut("{memeId}")]
         [Authorize]
@@ -92,8 +87,6 @@ namespace MemeSite.Controllers
 
 
         [HttpPut("ChangeAccpetanceStatus/{memeId}/{value}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> AcceptanceStatus(int memeId, bool value)
         {
@@ -102,8 +95,6 @@ namespace MemeSite.Controllers
         }
 
         [HttpPut("ChangeArchiveStatus/{memeId}/{value}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> ArchiveStatus(int memeId, bool value)
         {

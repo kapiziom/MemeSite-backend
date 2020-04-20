@@ -45,11 +45,11 @@ namespace MemeSite.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateVote([FromBody] SendVoteVM vote)
         {
-            string userId = User.Claims.First(c => c.Type == "UserID").Value;
             if (!ModelState.IsValid)
             {
                 return BadRequest(new { error = "only 1 and -1 are accepted" });
             }
+            string userId = User.Claims.First(c => c.Type == "UserID").Value;
             bool result = await _voteService.UpdateVote(vote, userId);
             if (result == true)
             {
@@ -59,12 +59,8 @@ namespace MemeSite.Controllers
         }
 
         [HttpGet("GetMemeRate/{memeId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<int> GetMemeRate(int memeId)
-        {
-            int newRate = await _voteService.GetMemeRate(memeId);
-            return newRate;
-        }
+            => await _voteService.GetMemeRate(memeId);
 
 
     }

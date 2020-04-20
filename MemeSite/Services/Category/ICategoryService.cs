@@ -13,9 +13,9 @@ namespace MemeSite.Services
         Task<CategoryVM> GetCategoryVM(int id);
         CategoryVM GetCategoryVM(Category entity);
         Task<List<CategoryVM>> GetCategoriesVM();
-        Task<bool> DeleteCategory(int id);
-        Task InsertCategory(CreateCategoryVM category);
-        Task<bool> UpdateCategory(CreateCategoryVM category, int id);
+        Task<object> DeleteCategory(int id);
+        Task<object> InsertCategory(CreateCategoryVM categoryVM);
+        Task<object> UpdateCategory(CreateCategoryVM category, int id);
         int GetCountOfAssignedItems(int id);
     }
 }

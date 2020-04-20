@@ -23,27 +23,16 @@ namespace MemeSite.Controllers
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult<CommentVM>> GetComment(int id)
-        {
-            CommentVM comment = await _commentService.GetCommentVM(id);
-            return Ok(comment);
-        }
+        public async Task<CommentVM> GetComment(int id)
+            => await _commentService.GetCommentVM(id);
 
         [HttpGet("ListForMeme/{memeId}")]
         public async Task<List<CommentVM>> GetCommentsAssignedToMeme(int memeId)
-        {
-            List<CommentVM> comments = await _commentService.GetListCommentVM(m => m.MemeRefId == memeId);
-            return comments;
-        }
+            => await _commentService.GetListCommentVM(m => m.MemeRefId == memeId);
 
         [HttpGet("ListForUser/{userName}")]
         public async Task<List<CommentVM>> GetCommentsAssignedToUser(string userName)
-        {
-            List<CommentVM> comments = await _commentService.GetListCommentVM(m => m.PageUser.UserName == userName);
-            return comments;
-        }
+            => await _commentService.GetListCommentVM(m => m.PageUser.UserName == userName);
 
         [HttpPost]
         [Authorize]
@@ -51,7 +40,10 @@ namespace MemeSite.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                var errors = ModelState.Select(x => x.Value.Errors)
+                           .Where(y => y.Count > 0)
+                           .ToList();
+                return BadRequest(errors);
             }
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
             var result = await _commentService.InsertComment(comment, userId);
@@ -64,7 +56,7 @@ namespace MemeSite.Controllers
         {
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
             var result = await _commentService.UpdateComment(comment, id, userId);
-            if (result != null)
+            if (result != null && ModelState.IsValid)
             {
                 return Ok(result);
             }
