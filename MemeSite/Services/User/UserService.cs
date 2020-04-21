@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace MemeSite.Services
@@ -58,6 +59,28 @@ namespace MemeSite.Services
             return stats;
         }
 
+        public async
+        Task<PagedList<ListedUserVM>> GetPagedListVM<TKey>(
+            Expression<Func<PageUser, bool>> filter,
+            Expression<Func<PageUser, TKey>> order,
+            int page, int itemsPerPage)
+        {
+            var model = await _repository.GetPagedAsync(filter, order, page, itemsPerPage);
+            var VM = new PagedList<ListedUserVM>();
+            VM.ItemsPerPage = model.ItemsPerPage;
+            VM.Page = model.Page;
+            VM.PageCount = model.PageCount;
+            VM.TotalItems = model.TotalItems;
+            List<ListedUserVM> list = new List<ListedUserVM>();
+
+            foreach (var m in model.Items)
+            {
+                list.Add(await MapListedUserVM(m));
+            }
+            VM.Items = list;
+            return VM;
+        }
+
         public async Task<object> ChangePassword(ChangePasswordVM changePasswordVM, System.Security.Claims.ClaimsPrincipal user)
         {
             string userId = user.Claims.First(c => c.Type == "UserID").Value;
@@ -106,6 +129,20 @@ namespace MemeSite.Services
             }
         }
 
-        
+        public async Task<ListedUserVM> MapListedUserVM(PageUser user)
+        {
+            var role = await _userManager.GetRolesAsync(user);
+            ListedUserVM vm = new ListedUserVM();
+            vm.UserName = user.UserName;
+            vm.Email = user.Email;
+            vm.CreationDate = user.CreationDate.ToString("dd/MM/yyyy hh:mm");
+            vm.MemeCount = await _memeService.Count(m => m.UserID == user.Id);
+            vm.CommentCount = await _commentService.CountAsync(m => m.UserID == user.Id);
+            vm.UserRole = role.FirstOrDefault();
+            return vm;
+        }
+
+
+
     }
 }

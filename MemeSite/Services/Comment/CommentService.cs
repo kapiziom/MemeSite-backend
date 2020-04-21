@@ -22,7 +22,26 @@ namespace MemeSite.Services
         public async Task<PagedList<Comment>> GetPagedList<TKey>(Expression<Func<Comment, bool>> filter, Expression<Func<Comment, TKey>> order, int page, int itemsPerPage)
             => await _repository.GetPagedAsync(filter, order, page, itemsPerPage);
 
-        
+        public async Task<PagedList<CommentVM>> GetPagedListVM<TKey>
+            (Expression<Func<Comment, bool>> filter, 
+            Expression<Func<Comment, TKey>> order, 
+            int page, int itemsPerPage)
+        {
+            var model = await _repository.GetPagedAsync(filter, order, page, itemsPerPage);
+            var VM = new PagedList<CommentVM>();
+            VM.ItemsPerPage = model.ItemsPerPage;
+            VM.Page = model.Page;
+            VM.PageCount = model.PageCount;
+            VM.TotalItems = model.TotalItems;
+            List<CommentVM> list = new List<CommentVM>();
+
+            foreach (var m in model.Items)
+            {
+                list.Add(await MapCommentVM(m));
+            }
+            VM.Items = list;
+            return VM;
+        }
 
         public async Task<List<CommentVM>> GetListCommentVM(Expression<Func<Comment, bool>> filter)
         {

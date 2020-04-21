@@ -11,6 +11,7 @@ namespace MemeSite.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CategoryId { get; set; }
+        [MaxLength(14, ErrorMessage = "Max category name length is 14 characters.")]
         public string CategoryName { get; set; }
         public ICollection<Meme> Memes { get; set; }
     }

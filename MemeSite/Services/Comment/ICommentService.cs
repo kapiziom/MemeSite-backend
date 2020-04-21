@@ -19,5 +19,6 @@ namespace MemeSite.Services
         Task<int> CommentCount(int memeId);
 
         Task<PagedList<Comment>> GetPagedList<TKey>(Expression<Func<Comment, bool>> filter, Expression<Func<Comment, TKey>> order, int page, int itemsPerPage);
+        Task<PagedList<CommentVM>> GetPagedListVM<TKey>(Expression<Func<Comment, bool>> filter, Expression<Func<Comment, TKey>> order, int page, int itemsPerPage);
     }
 }

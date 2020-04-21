@@ -29,10 +29,10 @@ namespace MemeSite.Controllers
         [HttpGet("ListForMeme/{memeId}")]
         public async Task<List<CommentVM>> GetCommentsAssignedToMeme(int memeId)
             => await _commentService.GetListCommentVM(m => m.MemeRefId == memeId);
-
-        [HttpGet("ListForUser/{userName}")]
-        public async Task<List<CommentVM>> GetCommentsAssignedToUser(string userName)
-            => await _commentService.GetListCommentVM(m => m.PageUser.UserName == userName);
+        
+        [HttpGet("PagedListForUser/{userName}/{page}/{itemsPerPage}")]
+        public async Task<PagedList<CommentVM>> GetCommentsAssignedToUser(string userName, int page, int itemsPerPage)
+            => await _commentService.GetPagedListVM(m => m.PageUser.UserName == userName, m => m.CreationDate, page, itemsPerPage);
 
         [HttpPost]
         [Authorize]

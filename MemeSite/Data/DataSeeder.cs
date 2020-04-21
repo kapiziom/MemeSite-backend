@@ -62,6 +62,13 @@ namespace MemeSite.Data
                 role.Name = "Administrator";
                 IdentityResult roleResult = roleManager.CreateAsync(role).Result;
             }
+
+            if (!roleManager.RoleExistsAsync("Banned").Result)
+            {
+                PageRole role = new PageRole();
+                role.Name = "Banned";
+                IdentityResult roleResult = roleManager.CreateAsync(role).Result;
+            }
         }
     }
 }
