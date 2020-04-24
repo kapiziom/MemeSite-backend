@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MemeSite.Repository;
+using MemeSite.Data.Models;
+using MemeSite.Data.Models.Common;
+using MemeSite.Middleware;
 using MemeSite.Services;
 using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -25,37 +27,26 @@ namespace MemeSite.Controllers
 
         [HttpPost("SendVote")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result), 400)]
+        [ProducesResponseType(typeof(ExceptionMessage), 409)]
         [Authorize]
         public async Task<IActionResult> InsertVote([FromBody] SendVoteVM vote)
         {
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
-            bool result = await _voteService.InsertVote(vote, userId);
-            if (!ModelState.IsValid || result == false)
-            {
-                return BadRequest(new { error = "only 1 and -1 are accepted" });
-            }
-            return Ok(vote);
+            var result = await _voteService.InsertVote(vote, userId);
+            return Ok(result.Value.Value);
         }
 
         [HttpPut("SendVote")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(Result), 400)]
+        [ProducesResponseType(typeof(ExceptionMessage), 409)]
         [Authorize]
         public async Task<IActionResult> UpdateVote([FromBody] SendVoteVM vote)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new { error = "only 1 and -1 are accepted" });
-            }
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
-            bool result = await _voteService.UpdateVote(vote, userId);
-            if (result == true)
-            {
-                return Ok(vote);
-            }
-            else return Conflict(new { error = "U voted for this option" });
+            var result = await _voteService.UpdateVote(vote, userId);
+            return Ok(result.Value.Value);
         }
 
         [HttpGet("GetMemeRate/{memeId}")]

@@ -1,12 +1,17 @@
-﻿using MemeSite.Model;
-using MemeSite.Repository;
+﻿using FluentValidation;
+using MemeSite.Data.Models;
+using MemeSite.Data.Models.Common;
+using MemeSite.Data.Models.Exceptions;
+using MemeSite.Data.Repository;
 using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace MemeSite.Services
@@ -16,7 +21,8 @@ namespace MemeSite.Services
         private readonly UserManager<PageUser> _userManager;
         public CommentService(
             IGenericRepository<Comment> _commentRepository,
-            UserManager<PageUser> userManager) : base(_commentRepository)
+            IValidator<Comment> validator,
+            UserManager<PageUser> userManager) : base(_commentRepository, validator)
         {
             _userManager = userManager;
         }
@@ -59,10 +65,8 @@ namespace MemeSite.Services
         public async Task<CommentVM> GetCommentVM(int id)
         {
             var m = await _repository.FindAsync(id);
-            if(m == null)
-            {
-                return null;
-            }
+            if (m == null)
+                throw new MemeSiteException(HttpStatusCode.NotFound, "Comment not found.");
             var VM = new CommentVM()
             {
                 CommentId = m.CommentId,
@@ -78,23 +82,22 @@ namespace MemeSite.Services
 
         }
 
-        public async Task<bool> DeleteComment(int id, System.Security.Claims.ClaimsPrincipal user)
+        public async Task DeleteComment(int id, System.Security.Claims.ClaimsPrincipal user)
         {
             var comment = await _repository.FindAsync(id);
             if (user.Claims.First(c => c.Type == "UserID").Value == comment.UserID ||
                 user.Claims.First(c => c.Type == "userRole").Value == "Administrator")
             {
                 await _repository.DeleteAsync(comment);
-                return true;
             }
-            else return false;
+            else throw new MemeSiteException(HttpStatusCode.Forbidden, "You don't have permission to delete this");
         }
 
-        public async Task<CommentVM> DeleteTxtAsAdmin(int id)
+        public async Task<CommentVM> ArchiveTxtAsAdmin(int id)
         {
             var comment = await _repository.FindAsync(id);
             comment.LastTxt = comment.Txt;
-            comment.IsDeleted = true;
+            comment.IsArchived = true;
             comment.Txt = "[Deleted by admin]";
             await _repository.UpdateAsync(comment);
             var model = await MapCommentVM(comment);
@@ -109,29 +112,39 @@ namespace MemeSite.Services
                 MemeRefId = VM.MemeId,
                 Txt = VM.Txt,
                 UserID = userId,
-                IsDeleted = false,
+                IsArchived = false,
             };
-            await _repository.InsertAsync(comment);
-            return await MapCommentVM(comment);
+            var result = Validate(comment);
+            if (result.Succeeded) 
+            {
+                return await MapCommentVM(await _repository.InsertAsync(comment));
+            } 
+            else throw new MemeSiteException(HttpStatusCode.BadRequest, "Validation failed", result);
         }
 
         public async Task<CommentVM> UpdateComment(EditCommentVM VM, int id, string userId)
         {
             var comment = await _repository.FindAsync(id);
-            if (comment.UserID == userId && comment.IsDeleted == false)
+            if (comment == null)
+                throw new MemeSiteException(HttpStatusCode.NotFound, "Comment not found");
+            if (comment.UserID == userId && comment.IsArchived == false)
             {
                 comment.LastTxt = comment.Txt;
                 comment.Txt = VM.Txt;
                 comment.EditDate = DateTime.Now;
-                await _repository.UpdateAsync(comment);
-                var model = await MapCommentVM(comment);
-                return model;
+                var result = await ValidateAsync(comment);
+                if(result.Succeeded)
+                {
+                    await _repository.UpdateAsync(comment);
+                }
+                
+                var vm = await MapCommentVM(comment);
+                return vm;
             }
-            else return null;
+            else throw new MemeSiteException(HttpStatusCode.Forbidden, "You don't have permission to edit this");
         }
 
         public async Task<int> CommentCount(int memeId) => await _repository.CountAsync(m => m.MemeRefId == memeId);
-
 
         public async Task<CommentVM> MapCommentVM(Comment comment)
         {
@@ -147,9 +160,5 @@ namespace MemeSite.Services
             return vm;
         }
 
-        //public async Task<List<Comment>> SubComments(int id)
-        //{
-        //    var list = await _subCommentRepository.GetAllFilteredAsync(m => m.);
-        //}
     }
 }

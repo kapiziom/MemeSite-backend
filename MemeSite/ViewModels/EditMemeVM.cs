@@ -8,6 +8,7 @@ namespace MemeSite.ViewModels
 {
     public class EditMemeVM
     {
+        public int MemeId { get; set; }
         [Required]
         public string Title { get; set; }
         public string Txt { get; set; }

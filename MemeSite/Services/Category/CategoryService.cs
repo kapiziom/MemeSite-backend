@@ -1,22 +1,28 @@
-﻿using AutoMapper;
-using MemeSite.Repository;
-using MemeSite.ViewModels;
+﻿using MemeSite.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MemeSite.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using FluentValidation;
+using System.Web.Http;
+using MemeSite.Data.Models;
+using MemeSite.Data.Repository;
+using MemeSite.Data.Models.Common;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using System.Net;
+using MemeSite.Data.Models.Exceptions;
 
 namespace MemeSite.Services
 {
     public class CategoryService : GenericService<Category>, ICategoryService
     {
 
-        public CategoryService(IGenericRepository<Category> categoryRepository) : base(categoryRepository) 
-        {
-        }
+        public CategoryService(
+            IGenericRepository<Category> categoryRepository,
+            IValidator<Category> validator) : base(categoryRepository, validator) { }
 
         public async Task<CategoryVM> GetCategoryVM(int id)
         {
@@ -50,58 +56,66 @@ namespace MemeSite.Services
             return list;
         }
 
-        public int GetCountOfAssignedItems(int id)
+        public async Task DeleteCategory(int id)
+        {
+            if (await _repository.FindAsync(id) == null)
+                throw new MemeSiteException(HttpStatusCode.NotFound, "Category not found");
+            if (GetCountOfAssignedItems(id) > 0)
+                throw new MemeSiteException(HttpStatusCode.Conflict, "Delete impossible. There are items assigned to this category");
+            await _repository.DeleteAsync(id);
+        }
+
+        public async Task<Category> testfortest(CreateCategoryVM create)
+        {
+            Category entity = new Category()
+            {
+                CategoryName = create.CategoryName
+            };
+            var result = Validate(entity);
+            if (await IsExistAsync(m => m.CategoryName == create.CategoryName))
+            {
+                throw new MemeSiteException(HttpStatusCode.Forbidden, "Duplicate, category already exist.");
+            }
+            if (result.Succeeded)
+            {
+                return await _repository.InsertAsync(entity);
+            }
+            return null;
+        }
+
+        public async Task<Result<Category>> InsertCategory(CreateCategoryVM create)
+        {
+            Category entity = new Category()
+            {
+                CategoryName = create.CategoryName
+            };
+            var result = Validate(entity);
+            if(await IsExistAsync(m => m.CategoryName == create.CategoryName))
+            {
+                throw new MemeSiteException(HttpStatusCode.Forbidden, "Duplicate, category already exist.");
+            }
+            if (result.Succeeded)
+            {
+                result.Value = await _repository.InsertAsync(entity);
+            }
+            return result;
+        }
+
+        public async Task<Result<Category>> UpdateCategory(CreateCategoryVM categoryVM, int id)
+        {
+            var category = await FindAsync(id);
+            if (category == null)
+                throw new MemeSiteException(HttpStatusCode.NotFound, "Category not found");
+            category.CategoryName = categoryVM.CategoryName;
+            return await Update(category);
+        }
+
+        public int? GetCountOfAssignedItems(int id)
         {
             var categories = _repository.Query().Include(x => x.Memes).Where(m => m.CategoryId == id);
             var category = categories.FirstOrDefault();
-            return category.Memes.Count();
+            return category?.Memes.Count() ?? 0;
         }
-
-        public async Task<object> DeleteCategory(int id)
-        {
-            if (await FindAsync(id) == null)
-            {
-                return new NotFoundObjectResult(new { error = "Not Found" });
-            }
-            if(GetCountOfAssignedItems(id) > 0)
-            {
-                return new ConflictObjectResult(new { error = "Delete is impossible. There are items assigned to this category" });
-            }
-            await _repository.DeleteAsync(id);
-            return new OkObjectResult(new { message = "Deleted" });
-        }
-
-        public async Task<object> InsertCategory(CreateCategoryVM categoryVM)
-        {
-            if (await IsExistAsync(m => m.CategoryName == categoryVM.CategoryName))
-            {
-                return new ConflictObjectResult(new { error = "Category already exist" });
-            }
-            Category category = new Category()
-            {
-                CategoryName = categoryVM.CategoryName,
-            };
-            await _repository.InsertAsync(category);
-            return new StatusCodeResult(201);
-        }
-
-
-        public async Task<object> UpdateCategory(CreateCategoryVM categoryVM, int id)
-        {
-            if (await IsExistAsync(m => m.CategoryName == categoryVM.CategoryName))
-            {
-                return new ConflictObjectResult(new { error = "Category already exist" });
-            }
-            var category = await FindAsync(id);
-            if (await FindAsync(id) == null)
-            {
-                return new NotFoundObjectResult(new { error = "Not Found" });
-            }
-            category.CategoryName = categoryVM.CategoryName;
-            await _repository.UpdateAsync(category);
-            return new OkObjectResult(categoryVM);
-        }
-            
 
     }
 }

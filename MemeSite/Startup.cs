@@ -1,12 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using MemeSite.Data;
-using MemeSite.Model;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,14 +13,18 @@ using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.Options;
-using MemeSite.Repository;
+using MemeSite.Data.Repository;
 using MemeSite.Services;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Reflection;
 using System.IO;
+using FluentValidation;
+using MemeSite.Data.Models;
+using MemeSite.Data.Models.Validators;
+using MemeSite.Data.DbContext;
+using MemeSite.Data.Models.Common;
+using MemeSite.Middleware;
 
 namespace MemeSite
 {
@@ -43,6 +42,22 @@ namespace MemeSite
         {
             services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
 
+            services.AddMvc().ConfigureApiBehaviorOptions(options =>
+            {
+                options.InvalidModelStateResponseFactory = c =>
+                {
+                    var errors = string.Join('\n', c.ModelState.Values.Where(v => v.Errors.Count > 0)
+                      .SelectMany(v => v.Errors)
+                      .Select(v => v.ErrorMessage));
+
+                     var result = new Result();
+                     result.Errors.Add(errors);
+
+
+                    return new BadRequestObjectResult(result);
+                };
+            });
+
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
@@ -56,7 +71,6 @@ namespace MemeSite
             });
 
             services.AddControllers();
-
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
@@ -95,15 +109,21 @@ namespace MemeSite
                     ClockSkew = TimeSpan.Zero
                 };
             });
-
+            //repository
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
+            //services
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IVoteService, VoteService>();
             services.AddScoped<IFavouriteService, FavouriteService>();
             services.AddScoped<IMemeService, MemeService>();
             services.AddScoped<IUserService, UserService>();
+            //validators
+            services.AddScoped<IValidator<Category>, CategoryValidator>();
+            services.AddScoped<IValidator<Comment>, CommentValidator>();
+            services.AddScoped<IValidator<Favourite>, FavouriteValidator>();
+            services.AddScoped<IValidator<Meme>, MemeValidator>();
+            services.AddScoped<IValidator<Vote>, VoteValidator>();
 
             services.AddSwaggerGen(c =>
             {
@@ -142,6 +162,8 @@ namespace MemeSite
         public void Configure(IApplicationBuilder app, UserManager<PageUser> userManager, RoleManager<PageRole> roleManager)
         {
             app.UseCors("AllowAll");
+
+            app.UseMiddleware<ExceptionsHandlingMiddleware>();
 
             DataSeeder.SeedData(userManager, roleManager);
 

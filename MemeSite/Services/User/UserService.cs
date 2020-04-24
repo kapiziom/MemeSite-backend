@@ -1,7 +1,10 @@
-﻿using MemeSite.Model;
-using MemeSite.Repository;
+﻿using FluentValidation;
+using MemeSite.Data.Models;
+using MemeSite.Data.Models.Common;
+using MemeSite.Data.Repository;
 using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,18 +13,21 @@ using System.Threading.Tasks;
 
 namespace MemeSite.Services
 {
-    public class UserService : GenericService<PageUser>, IUserService
+    public class UserService : IUserService
     {
         private readonly IMemeService _memeService;
         private readonly ICommentService _commentService;
         private readonly IFavouriteService _favouriteService;
         private readonly UserManager<PageUser> _userManager;
-        public UserService(IGenericRepository<PageUser> _userRepository,
+        private readonly IGenericRepository<PageUser> _userRepository;
+        public UserService(
+            IGenericRepository<PageUser> userRepository,
             IMemeService memeService,
             ICommentService commentService,
             IFavouriteService favouriteService,
-            UserManager<PageUser> userManager) : base(_userRepository)
+            UserManager<PageUser> userManager)
         {
+            _userRepository = userRepository;
             _memeService = memeService;
             _commentService = commentService;
             _favouriteService = favouriteService;
@@ -30,7 +36,7 @@ namespace MemeSite.Services
 
         public async Task<UserStatsVM> GetUserStatsById(string userId)
         {
-            var user = await _repository.FindAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 return null;
@@ -40,7 +46,7 @@ namespace MemeSite.Services
 
         public async Task<UserStatsVM> GetUserStatsByName(string userName)
         {
-            var user = await _repository.FindAsync(m => m.UserName == userName);
+            var user = await _userManager.FindByNameAsync(userName);
             if(user == null)
             {
                 return null;
@@ -54,6 +60,7 @@ namespace MemeSite.Services
             {
                 UserId = user.Id,
                 UserName = user.UserName,
+                UserRole = _userManager.GetRolesAsync(user).Result.FirstOrDefault(),
                 TotalMemes = await _memeService.CountAsync(m => m.PageUser.UserName == user.UserName),
                 TotalAccepted = await _memeService.CountAsync(m => m.PageUser.UserName == user.UserName && m.IsAccepted),
                 TotalComments = await _commentService.CountAsync(m => m.PageUser.UserName == user.UserName),
@@ -63,13 +70,12 @@ namespace MemeSite.Services
             return stats;
         }
 
-        public async
-        Task<PagedList<ListedUserVM>> GetPagedListVM<TKey>(
+        public async Task<PagedList<ListedUserVM>> GetPagedListVM<TKey>(
             Expression<Func<PageUser, bool>> filter,
             Expression<Func<PageUser, TKey>> order,
             int page, int itemsPerPage)
         {
-            var model = await _repository.GetPagedAsync(filter, order, page, itemsPerPage);
+            var model = await _userRepository.GetPagedAsync(filter, order, page, itemsPerPage);
             var VM = new PagedList<ListedUserVM>();
             VM.ItemsPerPage = model.ItemsPerPage;
             VM.Page = model.Page;
@@ -83,6 +89,21 @@ namespace MemeSite.Services
             }
             VM.Items = list;
             return VM;
+        }
+
+        public async Task<object> RegisterUser(RegisterVM model)
+        {
+            var user = new PageUser { UserName = model.UserName, Email = model.Email, CreationDate = DateTime.Now };
+            try
+            {
+                var result = await _userManager.CreateAsync(user, model.Password);
+                await _userManager.AddToRoleAsync(user, "NormalUser");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public async Task<object> ChangePassword(ChangePasswordVM changePasswordVM, System.Security.Claims.ClaimsPrincipal user)
@@ -137,16 +158,40 @@ namespace MemeSite.Services
         {
             var role = await _userManager.GetRolesAsync(user);
             ListedUserVM vm = new ListedUserVM();
+            vm.UserId = user.Id;
             vm.UserName = user.UserName;
             vm.Email = user.Email;
             vm.CreationDate = user.CreationDate.ToString("dd/MM/yyyy hh:mm");
-            vm.MemeCount = await _memeService.Count(m => m.UserID == user.Id);
+            vm.MemeCount = await _memeService.CountAsync(m => m.UserID == user.Id);
             vm.CommentCount = await _commentService.CountAsync(m => m.UserID == user.Id);
             vm.UserRole = role.FirstOrDefault();
             return vm;
         }
 
+        public async Task<object> SetUserRole(SetUserRoleVM setRole, System.Security.Claims.ClaimsPrincipal currentUser)
+        {
+            if (setRole.UserId == currentUser.Claims.First(c => c.Type == "UserID").Value)
+            {
+                return new ConflictObjectResult(new { error = "You can't change your role" });
+            }
+            var user = await _userManager.FindByIdAsync(setRole.UserId);
+            var userRole = _userManager.GetRolesAsync(user).Result.FirstOrDefault();
+            try
+            {
+                var result = await SetRole(user, userRole, setRole.Role);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
+        public async Task<IdentityResult> SetRole(PageUser user, string removeFrom, string addTo)
+        {
+            await _userManager.RemoveFromRoleAsync(user, removeFrom);
+            return await _userManager.AddToRoleAsync(user, addTo);
+        }
 
     }
 }

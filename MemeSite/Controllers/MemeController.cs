@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MemeSite.Model;
-using MemeSite.Repository;
+using AutoMapper;
+using MemeSite.Data.Models;
+using MemeSite.Data.Models.Common;
+using MemeSite.Middleware;
 using MemeSite.Services;
 using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -27,7 +29,7 @@ namespace MemeSite.Controllers
         {
             _memeService = memeService;
         }
-
+        
         [HttpGet("{page}/{itemsPerPage}")]
         public async Task<PagedList<MemeVM>> GetPagedListAccepted(int page, int itemsPerPage) =>
             await _memeService.GetPagedMemesAsync(m => m.IsAccepted == true && m.IsArchived == false, 
@@ -57,21 +59,15 @@ namespace MemeSite.Controllers
         [HttpGet("UsersFavourites/{page}/{itemsPerPage}")]
         [Authorize]
         public async Task<PagedList<MemeVM>> GetPagedListUsersFavourites(int page, int itemsPerPage)
-        {
-           return await _memeService.GetPagedFavouritesMemesAsync(page, itemsPerPage, User);
-        }
+            => await _memeService.GetPagedUsersFavourites(page, itemsPerPage, User);
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Administrator,NormalUser")]
         public async Task<IActionResult> UploadMeme([FromBody] MemeUploadVM model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
             await _memeService.Upload(model, userId);
-            return Ok(model);
+            return Ok();
         }
 
         [HttpGet("{memeId}")]
@@ -79,18 +75,16 @@ namespace MemeSite.Controllers
             => await _memeService.GetMemeDetailsById(memeId, User);
 
         [HttpPut("{memeId}")]
-        [Authorize]
+        [Authorize(Roles = "Administrator,NormalUser")]
         public async Task<IActionResult> EditMeme(int memeId, [FromBody] EditMemeVM editMeme)
         {
             var result = await _memeService.EditMeme(editMeme, memeId, User);
-            if (result == true)
+            if (result.Succeeded)
             {
                 return Ok();
             }
             else return BadRequest();
         }
-            
-
 
 
         [HttpPut("ChangeAccpetanceStatus/{memeId}/{value}")]
@@ -111,14 +105,13 @@ namespace MemeSite.Controllers
 
         [HttpDelete("{memeId}")]
         [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ExceptionMessage), 403)]
         public async Task<IActionResult> DeleteMeme(int memeId)
         {
             bool result = await _memeService.DeleteMeme(memeId, User);
-            if(result == true)
-            {
-                return Ok();
-            }
-            return BadRequest();
+            return NoContent();
+            
         }
 
         

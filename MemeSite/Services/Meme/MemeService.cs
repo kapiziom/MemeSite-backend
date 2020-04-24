@@ -1,11 +1,16 @@
-﻿using MemeSite.Model;
-using MemeSite.Repository;
+﻿using FluentValidation;
+using MemeSite.Data.Models;
+using MemeSite.Data.Models.Common;
+using MemeSite.Data.Models.Exceptions;
+using MemeSite.Data.Repository;
 using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace MemeSite.Services
@@ -18,11 +23,12 @@ namespace MemeSite.Services
         private readonly IVoteService _voteService;
         private readonly IFavouriteService _favouriteService;
         public MemeService(IGenericRepository<Meme> _memeRepository,
+            IValidator<Meme> validator,
             UserManager<PageUser> userManager,
             ICategoryService categoryService,
             ICommentService commentService,
             IVoteService voteService,
-            IFavouriteService favouriteService) : base(_memeRepository)
+            IFavouriteService favouriteService) : base(_memeRepository, validator)
         {
             _userManager = userManager;
             _categoryService = categoryService;
@@ -31,7 +37,7 @@ namespace MemeSite.Services
             _favouriteService = favouriteService;
         }
 
-        public async Task Upload(MemeUploadVM model, string userId)
+        public async Task<Result<Meme>> Upload(MemeUploadVM model, string userId)
         {
             var meme = new Meme()
             {
@@ -47,16 +53,13 @@ namespace MemeSite.Services
                 IsArchived = false,
                 AccpetanceDate = null,
             };
-            await _repository.InsertAsync(meme);
+            return await Insert(meme);
         }
+
 
         public async Task<MemeDetailsVM> GetMemeDetailsById(int id, System.Security.Claims.ClaimsPrincipal user)
         {
             var entity = await _repository.FindAsync(id);
-            if (entity == null)
-            {
-                return null;
-            }
             var memeVM = new MemeDetailsVM()
             {
                 MemeId = entity.MemeId,
@@ -92,7 +95,8 @@ namespace MemeSite.Services
             int page, int itemsPerPage, 
             System.Security.Claims.ClaimsPrincipal user)
         {
-            var model = await _repository.GetPagedAsync(filter, order, page, itemsPerPage);
+            var model = await _repository.GetPagedAsync(filter, order, page, itemsPerPage,
+                x => x.Comments, x => x.Votes, x => x.Favourites, x => x.PageUser, x => x.Category);
             var VM = new PagedList<MemeVM>();
             VM.ItemsPerPage = model.ItemsPerPage;
             VM.Page = model.Page;
@@ -116,11 +120,14 @@ namespace MemeSite.Services
             var resList = new PagedList<MemeVM>(); //zwracany model
             List<MemeVM> list = new List<MemeVM>();// PagedList.Items
             var favourites = await _favouriteService.GetAllAsync(m => m.UserId == userId);
+            var favs = await _favouriteService.GetAllFilteredIncludeAsync(m => m.UserId == userId,
+                x => x.MemeRefId);
             
             foreach (var m in favourites)
             {
                 list.Add(await MapMemeVM(await _repository.FindAsync(m.MemeRefId), user));
             }
+            
 
             //available pages
             resList.PageCount = (int)Math.Ceiling(((double)list.Count() / itemsPerPage));
@@ -134,27 +141,74 @@ namespace MemeSite.Services
             return resList;
         }
 
+        public async Task<object> GetUsersFavourites(System.Security.Claims.ClaimsPrincipal user)
+        {
+            string userId = user.Claims.First(c => c.Type == "UserID").Value;
+            var favs = await _favouriteService.GetAllFilteredIncludeAsync(m => m.UserId == userId,
+                x => x.Meme.Comments,
+                x => x.Meme.Favourites,
+                x => x.Meme.Votes,
+                x => x.Meme.PageUser,
+                x => x.Meme.Category);
+            List<MemeVM> listVM = new List<MemeVM>();
+            foreach (var fav in favs)
+            {
+                listVM.Add(await MapMemeVM(fav.Meme, user));
+            }
+            var result = listVM;
+            return listVM;
+        }
+
+        public async Task<PagedList<MemeVM>> GetPagedUsersFavourites(int page, int itemsPerPage, System.Security.Claims.ClaimsPrincipal user)
+        {
+            string userId = user.Claims.First(c => c.Type == "UserID").Value;
+            var MemeList = await _favouriteService.GetUsersFavourites(userId);
+            List<MemeVM> listVM = new List<MemeVM>();
+            var resList = new PagedList<MemeVM>();
+
+            foreach (var m in MemeList)
+            {
+                listVM.Add(await MapMemeVM(m, user));
+            }
+
+            //available pages
+            resList.PageCount = (int)Math.Ceiling(((double)listVM.Count() / itemsPerPage));
+
+            listVM = listVM.Skip((page - 1) * itemsPerPage).Take(itemsPerPage).ToList();
+
+            resList.ItemsPerPage = itemsPerPage;
+            resList.Page = page;
+            resList.TotalItems = listVM.Count();
+            resList.Items = listVM;
+            return resList;
+        }
+
         public async Task<bool> DeleteMeme(int id, System.Security.Claims.ClaimsPrincipal user)
         {
             var meme = await _repository.FindAsync(id);
+            if (meme == null)
+                throw new MemeSiteException(HttpStatusCode.NotFound, "Item not Found");
             if (user.Claims.First(c => c.Type == "UserID").Value == meme.UserID ||
                 user.Claims.First(c => c.Type == "userRole").Value == "Administrator")
             {
                 await _repository.DeleteAsync(meme);
-                return true;
             }
-            return false;
+            throw new MemeSiteException(HttpStatusCode.Forbidden, "You don't have permission to delete this");
         }
 
         public async Task ChangeArchiveStatus(int memeId, bool value)
         {
             var entity = await _repository.FindAsync(memeId);
+            if(entity == null)
+                throw new MemeSiteException(HttpStatusCode.NotFound, "Item not Found");
             entity.IsArchived = value;
             await _repository.UpdateAsync(entity);
         }
         public async Task ChangeAccpetanceStatus(int memeId, bool value)
         {
             var entity = await _repository.FindAsync(memeId);
+            if (entity == null)
+                throw new MemeSiteException(HttpStatusCode.NotFound, "Item not Found");
             if (value == true)
             {
                 entity.AccpetanceDate = DateTime.Now;
@@ -169,20 +223,19 @@ namespace MemeSite.Services
             await _repository.UpdateAsync(entity);
         }
 
-        public async Task<int> Count(Expression<Func<Meme, bool>> filter) => await _repository.CountAsync(filter);
-
-        public async Task<bool> EditMeme(EditMemeVM meme, int id, System.Security.Claims.ClaimsPrincipal user)
+        public async Task<Result<Meme>> EditMeme(EditMemeVM meme, int id, System.Security.Claims.ClaimsPrincipal user)
         {
-            var model = await _repository.FindAsync(id);
-            if(model.UserID == user.Claims.First(c => c.Type == "UserID").Value)
+            var entity = await _repository.FindAsync(id);
+            if (entity == null)
+                throw new MemeSiteException(HttpStatusCode.NotFound, "Item not Found");
+            if (entity.UserID == user.Claims.First(c => c.Type == "UserID").Value)
             {
-                model.Title = meme.Title;
-                model.Txt = meme.Txt;
-                model.CategoryId = meme.CategoryId;
-                await _repository.UpdateAsync(model);
-                return true;
+                entity.Title = meme.Title;
+                entity.Txt = meme.Txt;
+                entity.CategoryId = meme.CategoryId;
+                return await Update(entity);
             }
-            else return false;
+            else throw new MemeSiteException(HttpStatusCode.Forbidden, "You don't have permission to edit this");
         }
 
         public async Task<MemeVM> MapMemeVM(Meme entity, System.Security.Claims.ClaimsPrincipal user)
@@ -191,13 +244,13 @@ namespace MemeSite.Services
             vm.MemeId = entity.MemeId;
             vm.Title = entity.Title;
             vm.UserId = entity.UserID;
-            vm.UserName =  _userManager.FindByIdAsync(entity.UserID).Result.UserName;
+            vm.UserName = entity.PageUser.UserName;
             vm.ByteHead = entity.ByteHead;
             vm.ByteImg = entity.ImageByte;
             vm.Category = await _categoryService.GetCategoryVM(entity.CategoryId);
             vm.CreationDate = entity.CreationDate.ToString("dd/MM/yyyy");
-            vm.Rate = await _voteService.GetMemeRate(entity.MemeId);
-            vm.CommentCount = await _commentService.CountAsync(m => m.MemeRefId == entity.MemeId);
+            vm.Rate = entity.Rate();
+            vm.CommentCount = entity.CommentCount();
             vm.IsAccepted = entity.IsAccepted;
             vm.IsArchived = entity.IsArchived;
             vm.IsVoted = false;
@@ -206,9 +259,9 @@ namespace MemeSite.Services
             if (user != null && user.Identity.IsAuthenticated == true)
             {
                 string userId = user.Claims.First(c => c.Type == "UserID").Value;
-                vm.IsVoted = await _voteService.IsExistAsync(m => m.MemeRefId == entity.MemeId && m.UserId == userId);
-                vm.VoteValue = await _voteService.GetValueIfExist(entity.MemeId, userId);
-                vm.IsFavourite = await _favouriteService.IsExistAsync(m => m.MemeRefId == entity.MemeId && m.UserId == userId);
+                vm.IsVoted = entity.IsVoted(userId);
+                vm.VoteValue = entity.VoteValue(userId);
+                vm.IsFavourite = entity.IsFavourite(userId);
             }
             return vm;
         }

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MemeSite.Model;
-using MemeSite.Repository;
+using MemeSite.Data.Models;
+using MemeSite.Data.Models.Common;
+using MemeSite.Middleware;
 using MemeSite.Services;
 using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -29,55 +30,45 @@ namespace MemeSite.Controllers
         [HttpGet("ListForMeme/{memeId}")]
         public async Task<List<CommentVM>> GetCommentsAssignedToMeme(int memeId)
             => await _commentService.GetListCommentVM(m => m.MemeRefId == memeId);
-        
+
         [HttpGet("PagedListForUser/{userName}/{page}/{itemsPerPage}")]
         public async Task<PagedList<CommentVM>> GetCommentsAssignedToUser(string userName, int page, int itemsPerPage)
             => await _commentService.GetPagedListVM(m => m.PageUser.UserName == userName, m => m.CreationDate, page, itemsPerPage);
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Administrator,NormalUser")]
+        [ProducesResponseType(typeof(CommentVM), 200)]
+        [ProducesResponseType(typeof(Result), 400)]
         public async Task<IActionResult> PostComment([FromBody] AddCommentVM comment)
         {
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState.Select(x => x.Value.Errors)
-                           .Where(y => y.Count > 0)
-                           .ToList();
-                return BadRequest(errors);
-            }
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
             var result = await _commentService.InsertComment(comment, userId);
             return Ok(result);
         }
 
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Administrator,NormalUser")]
+        [ProducesResponseType(typeof(CommentVM), 200)]
+        [ProducesResponseType(typeof(Result), 400)]
+        [ProducesResponseType(typeof(ExceptionMessage), 403)]
         public async Task<IActionResult> EditComment(EditCommentVM comment, int id)
         {
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
             var result = await _commentService.UpdateComment(comment, id, userId);
-            if (result != null && ModelState.IsValid)
-            {
-                return Ok(result);
-            }
-            else return BadRequest();
+            return Ok(result);//return modified comment mapped to view model
         }
 
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Administrator,NormalUser")]
         public async Task<IActionResult> DeleteComment(int id)
         {
-            var result = await _commentService.DeleteComment(id, User);
-            if (result == true)
-            {
-                return Ok();
-            }
-            else return BadRequest();
+            await _commentService.DeleteComment(id, User);
+            return NoContent();
         }
 
         [HttpPut("DelTxtAsAdmin/{id}")]
         [Authorize(Roles = "Administrator")]
-        public async Task<CommentVM> DeleteCommentTxtAsAdmin(int id) => await _commentService.DeleteTxtAsAdmin(id);
+        public async Task<CommentVM> DeleteCommentTxtAsAdmin(int id) => await _commentService.ArchiveTxtAsAdmin(id);
 
 
     }

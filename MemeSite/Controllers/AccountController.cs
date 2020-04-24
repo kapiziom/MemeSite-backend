@@ -12,12 +12,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authorization;
-using MemeSite.Model;
 using MemeSite.ViewModels;
-using MemeSite.Repository;
 using MemeSite.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using MemeSite.Data.Models;
 
 namespace MemeSite.Controllers
 {
@@ -72,19 +71,8 @@ namespace MemeSite.Controllers
 
         [HttpPost("Register")]
         public async Task<object> Register([FromBody] RegisterVM model)
-        {
-            var user = new PageUser { UserName = model.UserName, Email = model.Email, CreationDate = DateTime.Now };
-            try
-            {
-                var result = await _userManager.CreateAsync(user, model.Password);
-                await _userManager.AddToRoleAsync(user, "NormalUser");
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+            => await _userService.RegisterUser(model);
+        
 
         [HttpPut("ChangePassword")]
         [Authorize]
@@ -100,6 +88,11 @@ namespace MemeSite.Controllers
         [Authorize]
         public async Task<object> ChangeEmail([FromBody] ChangeEmailVM changeEmailVM)
             => await _userService.ChangeEmail(changeEmailVM, User);
+
+        [HttpPut("SetRole")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<object> SetRole([FromBody] SetUserRoleVM setRole)
+            => await _userService.SetUserRole(setRole, User);
 
 
     }

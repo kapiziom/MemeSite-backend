@@ -1,5 +1,7 @@
-﻿using MemeSite.Model;
+﻿using MemeSite.Data.Models;
+using MemeSite.Data.Models.Common;
 using MemeSite.ViewModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -13,9 +15,10 @@ namespace MemeSite.Services
         Task<CategoryVM> GetCategoryVM(int id);
         CategoryVM GetCategoryVM(Category entity);
         Task<List<CategoryVM>> GetCategoriesVM();
-        Task<object> DeleteCategory(int id);
-        Task<object> InsertCategory(CreateCategoryVM categoryVM);
-        Task<object> UpdateCategory(CreateCategoryVM category, int id);
-        int GetCountOfAssignedItems(int id);
+        Task DeleteCategory(int id);
+        Task<Result<Category>> InsertCategory(CreateCategoryVM category);
+        Task<Result<Category>> UpdateCategory(CreateCategoryVM category, int id);
+
+        Task<Category> testfortest(CreateCategoryVM create);
     }
 }

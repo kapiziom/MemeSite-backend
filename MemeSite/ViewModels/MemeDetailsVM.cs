@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MemeSite.Data.Models.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace MemeSite.ViewModels
         public bool IsAccepted { get; set; }
         public bool IsArchived { get; set; }
         public bool IsVoted { get; set; }
-        public int? VoteValue { get; set; }
+        public Value? VoteValue { get; set; }
         public bool IsFavourite { get; set; }
     }
 }

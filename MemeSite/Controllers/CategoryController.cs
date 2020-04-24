@@ -1,10 +1,15 @@
 ﻿using System;
-using AutoMapper;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
-using MemeSite.Model;
-using MemeSite.Repository;
+using AutoMapper;
+using FluentValidation;
+using FluentValidation.Results;
+using MemeSite.Data.Models;
+using MemeSite.Data.Models.Common;
+using MemeSite.Middleware;
 using MemeSite.Services;
 using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -24,11 +29,15 @@ namespace MemeSite.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Administrator")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<object> CreateCategory([FromBody] CreateCategoryVM category)
-            => await _categoryService.InsertCategory(category);
+        //[Authorize(Roles = "Administrator")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<Category>), 400)]
+        [ProducesResponseType(typeof(Result<Category>), 409)]
+        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryVM createCategoryVM)
+        {
+            var result = await _categoryService.InsertCategory(createCategoryVM);
+            return Ok(result);
+        }
 
         [HttpGet]
         public async Task<List<CategoryVM>> GetAllCategories()
@@ -40,20 +49,27 @@ namespace MemeSite.Controllers
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Administrator")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<object> DeleteCategory(int id)
-            => await _categoryService.DeleteCategory(id);
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ExceptionMessage), 404)]
+        [ProducesResponseType(typeof(ExceptionMessage), 409)]
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            await _categoryService.DeleteCategory(id);
+            return NoContent();
+        }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Administrator")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<object> UpdateCategory([FromBody] CreateCategoryVM category, int id)
-            => await _categoryService.UpdateCategory(category, id);
+        [ProducesResponseType(typeof(Result<Category>), 400)]
+        [ProducesResponseType(typeof(ExceptionMessage), 409)]
+        public async Task<IActionResult> UpdateCategory([FromBody] CreateCategoryVM category, int id)
+        {
+            Result<Category> result = await _categoryService.UpdateCategory(category, id);
+            return Ok(result.Value);
+        }
 
 
     }
+
 }

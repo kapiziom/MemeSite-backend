@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using MemeSite.Data.Models;
 using MemeSite.Services;
 using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -22,14 +24,11 @@ namespace MemeSite.Controllers
 
         [HttpPost("AddFavourite")]
         [Authorize]
-        public async Task<IActionResult> InsertFavourite([FromBody] AddFavouriteVM fav)
+        public async Task<IActionResult> InsertFavourite([FromBody] AddFavouriteVM AddFavourite)
         {
-            bool result = await _service.InsertFavourite(fav);
-            if (result == false)
-            {
-                return BadRequest();
-            }
-            return Ok(fav);
+            AddFavourite.UserId = User.Claims.First(c => c.Type == "UserID").Value;
+            await _service.InsertFavourite(AddFavourite);
+            return Ok(new { successMessage = "Success"});
         }
 
         [HttpDelete("DeleteFromFavourite/{memeId}")]
@@ -37,12 +36,8 @@ namespace MemeSite.Controllers
         public async Task<IActionResult> DeleteFavourite(int memeId)
         {
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
-            bool result = await _service.DeleteFavourite(memeId, userId);
-            if (result == false)
-            {
-                return BadRequest();
-            }
-            return Ok();
+            await _service.DeleteFavourite(memeId, userId);
+            return NoContent();
         }
     }
 }
