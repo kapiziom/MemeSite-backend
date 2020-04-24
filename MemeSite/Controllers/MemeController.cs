@@ -54,6 +54,13 @@ namespace MemeSite.Controllers
             await _memeService.GetPagedMemesAsync(m => m.PageUser.UserName == userName,
                 m => m.CreationDate, page, itemsPerPage, User);
 
+        [HttpGet("UsersFavourites/{page}/{itemsPerPage}")]
+        [Authorize]
+        public async Task<PagedList<MemeVM>> GetPagedListUsersFavourites(int page, int itemsPerPage)
+        {
+           return await _memeService.GetPagedFavouritesMemesAsync(page, itemsPerPage, User);
+        }
+
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> UploadMeme([FromBody] MemeUploadVM model)

@@ -19,6 +19,7 @@ namespace MemeSite.Data
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Meme> Memes { get; set; }
         public DbSet<Vote> Votes { get; set; }
+        public DbSet<Favourite> Favourites { get; set; }
 
         private IDbContextTransaction _transaction;
 

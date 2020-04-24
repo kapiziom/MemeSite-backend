@@ -101,6 +101,7 @@ namespace MemeSite
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IVoteService, VoteService>();
+            services.AddScoped<IFavouriteService, FavouriteService>();
             services.AddScoped<IMemeService, MemeService>();
             services.AddScoped<IUserService, UserService>();
 

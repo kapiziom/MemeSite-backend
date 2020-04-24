@@ -11,5 +11,6 @@ namespace MemeSite.Model
         public DateTime CreationDate { get; set; }
         public ICollection<Comment> Comments { get; set; }
         public ICollection<Meme> Memes { get; set; }
+        public ICollection<Favourite> Favourites { get; set; }
     }
 }

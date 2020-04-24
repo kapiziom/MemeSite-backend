@@ -32,5 +32,6 @@ namespace MemeSite.Model
         public Category Category { get; set; }
         public ICollection<Comment> Comments { get; set; }
         public ICollection<Vote> Votes { get; set; }
+        public ICollection<Favourite> Favourites { get; set; }
     }
 }

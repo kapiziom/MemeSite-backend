@@ -4,14 +4,16 @@ using MemeSite.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MemeSite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200423231938_Update240420")]
+    partial class Update240420
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,6 +44,9 @@ namespace MemeSite.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int?>("CommentId1")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
@@ -66,6 +71,8 @@ namespace MemeSite.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("CommentId");
+
+                    b.HasIndex("CommentId1");
 
                     b.HasIndex("MemeRefId");
 
@@ -377,6 +384,10 @@ namespace MemeSite.Migrations
 
             modelBuilder.Entity("MemeSite.Model.Comment", b =>
                 {
+                    b.HasOne("MemeSite.Model.Comment", null)
+                        .WithMany("SubComments")
+                        .HasForeignKey("CommentId1");
+
                     b.HasOne("MemeSite.Model.Meme", "Meme")
                         .WithMany("Comments")
                         .HasForeignKey("MemeRefId")

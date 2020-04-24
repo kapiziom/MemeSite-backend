@@ -16,16 +16,19 @@ namespace MemeSite.Services
         private readonly ICategoryService _categoryService;
         private readonly ICommentService _commentService;
         private readonly IVoteService _voteService;
+        private readonly IFavouriteService _favouriteService;
         public MemeService(IGenericRepository<Meme> _memeRepository,
             UserManager<PageUser> userManager,
             ICategoryService categoryService,
             ICommentService commentService,
-            IVoteService voteService) : base(_memeRepository)
+            IVoteService voteService,
+            IFavouriteService favouriteService) : base(_memeRepository)
         {
             _userManager = userManager;
             _categoryService = categoryService;
             _commentService = commentService;
             _voteService = voteService;
+            _favouriteService = favouriteService;
         }
 
         public async Task Upload(MemeUploadVM model, string userId)
@@ -78,7 +81,7 @@ namespace MemeSite.Services
                 string userId = user.Claims.First(c => c.Type == "UserID").Value;
                 memeVM.IsVoted = await _voteService.IsExistAsync(m => m.MemeRefId == id && m.UserId == userId);
                 memeVM.VoteValue = await _voteService.GetValueIfExist(entity.MemeId, userId);
-                memeVM.IsFavourite = false;//to implement
+                memeVM.IsFavourite = await _favouriteService.IsExistAsync(m => m.MemeRefId == id && m.UserId == userId);
             }
             return memeVM;
         }
@@ -104,6 +107,31 @@ namespace MemeSite.Services
             }
             VM.Items = list;
             return VM;
+        }
+
+        public async Task<PagedList<MemeVM>> GetPagedFavouritesMemesAsync
+            (int page, int itemsPerPage, System.Security.Claims.ClaimsPrincipal user)
+        {
+            string userId = user.Claims.First(c => c.Type == "UserID").Value;
+            var resList = new PagedList<MemeVM>(); //zwracany model
+            List<MemeVM> list = new List<MemeVM>();// PagedList.Items
+            var favourites = await _favouriteService.GetAllAsync(m => m.UserId == userId);
+            
+            foreach (var m in favourites)
+            {
+                list.Add(await MapMemeVM(await _repository.FindAsync(m.MemeRefId), user));
+            }
+
+            //available pages
+            resList.PageCount = (int)Math.Ceiling(((double)list.Count() / itemsPerPage));
+
+            list = list.Skip((page - 1) * itemsPerPage).Take(itemsPerPage).ToList();
+
+            resList.ItemsPerPage = itemsPerPage;
+            resList.Page = page;
+            resList.TotalItems = list.Count();
+            resList.Items = list;
+            return resList;
         }
 
         public async Task<bool> DeleteMeme(int id, System.Security.Claims.ClaimsPrincipal user)
@@ -180,7 +208,7 @@ namespace MemeSite.Services
                 string userId = user.Claims.First(c => c.Type == "UserID").Value;
                 vm.IsVoted = await _voteService.IsExistAsync(m => m.MemeRefId == entity.MemeId && m.UserId == userId);
                 vm.VoteValue = await _voteService.GetValueIfExist(entity.MemeId, userId);
-                vm.IsFavourite = false;//to implement
+                vm.IsFavourite = await _favouriteService.IsExistAsync(m => m.MemeRefId == entity.MemeId && m.UserId == userId);
             }
             return vm;
         }

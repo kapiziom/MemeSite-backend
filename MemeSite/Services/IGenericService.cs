@@ -11,6 +11,7 @@ namespace MemeSite.Services
     {
         Task<TEntity> FindAsync(params object[] keyValues);
         Task<List<TEntity>> GetAllAsync();
+        Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filter);
         Task<int> CountAsync(Expression<Func<TEntity, bool>> filter);
         Task<bool> IsExistAsync(Expression<Func<TEntity, bool>> filter);
     }

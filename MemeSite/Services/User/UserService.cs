@@ -14,14 +14,17 @@ namespace MemeSite.Services
     {
         private readonly IMemeService _memeService;
         private readonly ICommentService _commentService;
+        private readonly IFavouriteService _favouriteService;
         private readonly UserManager<PageUser> _userManager;
         public UserService(IGenericRepository<PageUser> _userRepository,
             IMemeService memeService,
             ICommentService commentService,
+            IFavouriteService favouriteService,
             UserManager<PageUser> userManager) : base(_userRepository)
         {
             _memeService = memeService;
             _commentService = commentService;
+            _favouriteService = favouriteService;
             _userManager = userManager;
         }
 
@@ -55,6 +58,7 @@ namespace MemeSite.Services
                 TotalAccepted = await _memeService.CountAsync(m => m.PageUser.UserName == user.UserName && m.IsAccepted),
                 TotalComments = await _commentService.CountAsync(m => m.PageUser.UserName == user.UserName),
                 Joined = user.CreationDate.ToString("dd/MM/yyyy"),
+                FavouritesCount = await _favouriteService.CountAsync(m => m.UserId == user.Id)
             };
             return stats;
         }

@@ -18,8 +18,12 @@ namespace MemeSite.Services
 
         public async Task<TEntity> FindAsync(params object[] keyValues) => await _repository.FindAsync(keyValues);
         public async Task<List<TEntity>> GetAllAsync() => await _repository.GetAllAsync();
-        public async Task<int> CountAsync(Expression<Func<TEntity, bool>> filter) => await _repository.CountAsync(filter);
-        public async Task<bool> IsExistAsync(Expression<Func<TEntity, bool>> filter) => await _repository.IsExistAsync(filter);
+        public async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filter)
+            => await _repository.GetAllFilteredAsync(filter);
+        public async Task<int> CountAsync(Expression<Func<TEntity, bool>> filter)
+            => await _repository.CountAsync(filter);
+        public async Task<bool> IsExistAsync(Expression<Func<TEntity, bool>> filter)
+            => await _repository.IsExistAsync(filter);
 
     }
 }

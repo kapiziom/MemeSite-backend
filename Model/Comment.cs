@@ -27,5 +27,6 @@ namespace MemeSite.Model
         public string UserID { get; set; }
         public PageUser PageUser { get; set; }
 
+
     }
 }

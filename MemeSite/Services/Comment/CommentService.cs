@@ -14,7 +14,9 @@ namespace MemeSite.Services
     public class CommentService : GenericService<Comment>, ICommentService
     {
         private readonly UserManager<PageUser> _userManager;
-        public CommentService(IGenericRepository<Comment> _commentRepository, UserManager<PageUser> userManager) : base(_commentRepository)
+        public CommentService(
+            IGenericRepository<Comment> _commentRepository,
+            UserManager<PageUser> userManager) : base(_commentRepository)
         {
             _userManager = userManager;
         }
@@ -144,5 +146,10 @@ namespace MemeSite.Services
             vm.EditDate = comment.EditDate?.ToString("dd/MM/yyyy hh:mm");
             return vm;
         }
+
+        //public async Task<List<Comment>> SubComments(int id)
+        //{
+        //    var list = await _subCommentRepository.GetAllFilteredAsync(m => m.);
+        //}
     }
 }

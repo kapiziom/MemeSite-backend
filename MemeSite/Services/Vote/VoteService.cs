@@ -12,10 +12,7 @@ namespace MemeSite.Services
     public class VoteService : GenericService<Vote>, IVoteService
     {
 
-        public VoteService(IGenericRepository<Vote> _voteRepository) : base(_voteRepository)
-        {
-            
-        }
+        public VoteService(IGenericRepository<Vote> _voteRepository) : base(_voteRepository) { }
 
         public async Task<bool> InsertVote(SendVoteVM voteVM, string userId)
         {

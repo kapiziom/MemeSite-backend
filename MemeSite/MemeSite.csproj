@@ -13,6 +13,8 @@
     <Compile Remove="Migrations\20200406234945_CnameUnique.Designer.cs" />
     <Compile Remove="Migrations\20200409220524_PageuserUpd.cs" />
     <Compile Remove="Migrations\20200409220524_PageuserUpd.Designer.cs" />
+    <Compile Remove="Migrations\20200423230803_Update240420.cs" />
+    <Compile Remove="Migrations\20200423230803_Update240420.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
