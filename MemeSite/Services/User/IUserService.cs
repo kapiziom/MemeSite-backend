@@ -20,7 +20,6 @@ namespace MemeSite.Services
 
         Task<IdentityResult> ChangePassword(ChangePasswordVM changePasswordVM, System.Security.Claims.ClaimsPrincipal user);
         Task<IdentityResult> ChangeEmail(ChangeEmailVM email, System.Security.Claims.ClaimsPrincipal user);
-        Task<IdentityResult> ChangeUserName(ChangeUserNameVM username, System.Security.Claims.ClaimsPrincipal user);
         Task<IdentityResult> SetUserRole(SetUserRoleVM setRole, System.Security.Claims.ClaimsPrincipal currentUser);
 
     }
