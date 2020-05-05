@@ -230,7 +230,7 @@ namespace MemeSite.Services
             var entity = await _repository.FindAsync(id);
             if (entity == null)
                 throw new MemeSiteException(HttpStatusCode.NotFound, "Item not Found");
-            if (entity.UserID == user.Claims.First(c => c.Type == "UserID").Value)
+            if (entity.UserID == user.Claims.First(c => c.Type == "UserID").Value && !entity.IsArchived)
             {
                 entity.Title = meme.Title;
                 entity.Txt = meme.Txt;
