@@ -60,6 +60,7 @@ namespace MemeSite.Controllers
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Administrator,NormalUser")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteComment(int id)
         {
             await _commentService.DeleteComment(id, User);

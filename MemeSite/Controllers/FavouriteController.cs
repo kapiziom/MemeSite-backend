@@ -32,6 +32,7 @@ namespace MemeSite.Controllers
         }
 
         [HttpDelete("DeleteFromFavourite/{memeId}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [Authorize]
         public async Task<IActionResult> DeleteFavourite(int memeId)
         {

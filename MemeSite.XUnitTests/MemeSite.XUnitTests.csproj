@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MemeSite\MemeSite.csproj" />
-    <ProjectReference Include="..\Model\MemeSite.Data.csproj" />
+    <ProjectReference Include="..\Data\MemeSite.Data.csproj" />
   </ItemGroup>
 
 </Project>

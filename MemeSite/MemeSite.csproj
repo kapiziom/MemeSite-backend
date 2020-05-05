@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Model\MemeSite.Data.csproj" />
+    <ProjectReference Include="..\Data\MemeSite.Data.csproj" />
   </ItemGroup>
 
 

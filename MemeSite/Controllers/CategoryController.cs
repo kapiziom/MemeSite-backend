@@ -29,7 +29,7 @@ namespace MemeSite.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<Category>), 400)]
         [ProducesResponseType(typeof(Result<Category>), 409)]
