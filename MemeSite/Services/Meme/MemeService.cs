@@ -60,6 +60,8 @@ namespace MemeSite.Services
         public async Task<MemeDetailsVM> GetMemeDetailsById(int id, System.Security.Claims.ClaimsPrincipal user)
         {
             var entity = await _repository.FindAsync(id);
+            if (entity == null)
+                throw new MemeSiteException(HttpStatusCode.NotFound, "Not Found");
             var memeVM = new MemeDetailsVM()
             {
                 MemeId = entity.MemeId,
@@ -183,7 +185,7 @@ namespace MemeSite.Services
             return resList;
         }
 
-        public async Task<bool> DeleteMeme(int id, System.Security.Claims.ClaimsPrincipal user)
+        public async Task DeleteMeme(int id, System.Security.Claims.ClaimsPrincipal user)
         {
             var meme = await _repository.FindAsync(id);
             if (meme == null)

@@ -36,7 +36,7 @@ namespace MemeSite.Services
         
         protected async Task<Result<TEntity>> ValidateAsync(TEntity entity) => new Result<TEntity>(await _validator.ValidateAsync(entity));
 
-        public virtual async Task<Result<TEntity>> Insert(TEntity entity)
+        public async Task<Result<TEntity>> Insert(TEntity entity)
         {
             var result = await ValidateAsync(entity);
 
@@ -46,7 +46,7 @@ namespace MemeSite.Services
             return result;
         }
 
-        public virtual async Task<Result<TEntity>> Update(TEntity entity)
+        public async Task<Result<TEntity>> Update(TEntity entity)
         {
             var result = await ValidateAsync(entity);
 

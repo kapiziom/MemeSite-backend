@@ -79,11 +79,6 @@ namespace MemeSite.Controllers
         public async Task<object> ChangePassword([FromBody] ChangePasswordVM changePasswordVM)
             => await _userService.ChangePassword(changePasswordVM, User);
 
-        [HttpPut("ChangeUserName")]
-        [Authorize]
-        public async Task<object> ChangeUserName([FromBody] ChangeUserNameVM changeUserNameVM)
-            => await _userService.ChangeUserName(changeUserNameVM, User);
-
         [HttpPut("ChangeEmail")]
         [Authorize]
         public async Task<object> ChangeEmail([FromBody] ChangeEmailVM changeEmailVM)

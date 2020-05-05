@@ -62,12 +62,14 @@ namespace MemeSite.Controllers
             => await _memeService.GetPagedUsersFavourites(page, itemsPerPage, User);
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result), 400)]
         [Authorize(Roles = "Administrator,NormalUser")]
         public async Task<IActionResult> UploadMeme([FromBody] MemeUploadVM model)
         {
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
             await _memeService.Upload(model, userId);
-            return Ok();
+            return Ok(new { successMessage = "New meme added"});
         }
 
         [HttpGet("{memeId}")]
@@ -75,15 +77,15 @@ namespace MemeSite.Controllers
             => await _memeService.GetMemeDetailsById(memeId, User);
 
         [HttpPut("{memeId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result), 400)]
+        [ProducesResponseType(typeof(ExceptionMessage), 403)]
+        [ProducesResponseType(typeof(ExceptionMessage), 404)]
         [Authorize(Roles = "Administrator,NormalUser")]
         public async Task<IActionResult> EditMeme(int memeId, [FromBody] EditMemeVM editMeme)
         {
             var result = await _memeService.EditMeme(editMeme, memeId, User);
-            if (result.Succeeded)
-            {
-                return Ok();
-            }
-            else return BadRequest();
+            return Ok(result.Value);
         }
 
 
@@ -92,7 +94,7 @@ namespace MemeSite.Controllers
         public async Task<IActionResult> AcceptanceStatus(int memeId, bool value)
         {
             await _memeService.ChangeAccpetanceStatus(memeId, value);
-            return Ok();
+            return Ok(new { successMessage = "Status changed" });
         }
 
         [HttpPut("ChangeArchiveStatus/{memeId}/{value}")]
@@ -100,7 +102,7 @@ namespace MemeSite.Controllers
         public async Task<IActionResult> ArchiveStatus(int memeId, bool value)
         {
             await _memeService.ChangeArchiveStatus(memeId, value);
-            return Ok();
+            return Ok(new { successMessage = "Status changed" });
         }
 
         [HttpDelete("{memeId}")]
@@ -109,7 +111,7 @@ namespace MemeSite.Controllers
         [ProducesResponseType(typeof(ExceptionMessage), 403)]
         public async Task<IActionResult> DeleteMeme(int memeId)
         {
-            bool result = await _memeService.DeleteMeme(memeId, User);
+            await _memeService.DeleteMeme(memeId, User);
             return NoContent();
             
         }

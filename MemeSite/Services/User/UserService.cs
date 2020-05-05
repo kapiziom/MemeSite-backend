@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using MemeSite.Data.Models;
 using MemeSite.Data.Models.Common;
+using MemeSite.Data.Models.Exceptions;
 using MemeSite.Data.Repository;
 using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace MemeSite.Services
@@ -65,7 +67,6 @@ namespace MemeSite.Services
                 TotalAccepted = await _memeService.CountAsync(m => m.PageUser.UserName == user.UserName && m.IsAccepted),
                 TotalComments = await _commentService.CountAsync(m => m.PageUser.UserName == user.UserName),
                 Joined = user.CreationDate.ToString("dd/MM/yyyy"),
-                FavouritesCount = await _favouriteService.CountAsync(m => m.UserId == user.Id)
             };
             return stats;
         }
@@ -91,7 +92,7 @@ namespace MemeSite.Services
             return VM;
         }
 
-        public async Task<object> RegisterUser(RegisterVM model)
+        public async Task<IdentityResult> RegisterUser(RegisterVM model)
         {
             var user = new PageUser { UserName = model.UserName, Email = model.Email, CreationDate = DateTime.Now };
             try
@@ -106,7 +107,7 @@ namespace MemeSite.Services
             }
         }
 
-        public async Task<object> ChangePassword(ChangePasswordVM changePasswordVM, System.Security.Claims.ClaimsPrincipal user)
+        public async Task<IdentityResult> ChangePassword(ChangePasswordVM changePasswordVM, System.Security.Claims.ClaimsPrincipal user)
         {
             string userId = user.Claims.First(c => c.Type == "UserID").Value;
             var usermodel = await _userManager.FindByIdAsync(userId);
@@ -121,7 +122,7 @@ namespace MemeSite.Services
             }
         }
 
-        public async Task<object> ChangeEmail(ChangeEmailVM email, System.Security.Claims.ClaimsPrincipal user)
+        public async Task<IdentityResult> ChangeEmail(ChangeEmailVM email, System.Security.Claims.ClaimsPrincipal user)
         {
             string userId = user.Claims.First(c => c.Type == "UserID").Value;
 
@@ -131,21 +132,6 @@ namespace MemeSite.Services
                 usermodel.Email = email.NewEmail;
                 usermodel.NormalizedEmail = email.NewEmail.Normalize();
                 var result = await _userManager.UpdateAsync(usermodel);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public async Task<object> ChangeUserName(ChangeUserNameVM username, System.Security.Claims.ClaimsPrincipal user)
-        {
-            string userId = user.Claims.First(c => c.Type == "UserID").Value;
-            var usermodel = await _userManager.FindByIdAsync(userId);
-            try
-            {
-                var result = await _userManager.SetUserNameAsync(usermodel, username.NewUserName);
-                await _userManager.UpdateNormalizedUserNameAsync(usermodel);
                 return result;
             }
             catch (Exception ex)
@@ -168,11 +154,11 @@ namespace MemeSite.Services
             return vm;
         }
 
-        public async Task<object> SetUserRole(SetUserRoleVM setRole, System.Security.Claims.ClaimsPrincipal currentUser)
+        public async Task<IdentityResult> SetUserRole(SetUserRoleVM setRole, System.Security.Claims.ClaimsPrincipal currentUser)
         {
             if (setRole.UserId == currentUser.Claims.First(c => c.Type == "UserID").Value)
             {
-                return new ConflictObjectResult(new { error = "You can't change your role" });
+                throw new MemeSiteException(HttpStatusCode.Conflict, "You can't change your role");
             }
             var user = await _userManager.FindByIdAsync(setRole.UserId);
             var userRole = _userManager.GetRolesAsync(user).Result.FirstOrDefault();

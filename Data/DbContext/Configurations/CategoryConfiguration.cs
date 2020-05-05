@@ -17,7 +17,6 @@ namespace MemeSite.Data.DbContext.Configurations
             builder.Property(t => t.CategoryId)
                 .UseIdentityColumn(1, 1);
 
-            builder.HasAlternateKey(t => t.CategoryName);
             builder.Property(t => t.CategoryName)
                 .HasMaxLength(14)
                 .IsRequired();

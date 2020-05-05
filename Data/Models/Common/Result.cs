@@ -12,7 +12,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Microsoft.AspNetCore.Identity;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MemeSite.Data.Models.Common
 {
@@ -23,11 +23,9 @@ namespace MemeSite.Data.Models.Common
 
     public class Result<T> where T : class
     {
-        public Result(ValidationResult validationResult) : this(validationResult, null) { }
-        public Result(ValidationResult validationResult, T value)
+        public Result(ValidationResult validationResult)
         {
             Errors = validationResult?.Errors.Select(x => x.ErrorMessage).ToList() ?? new List<string>();
-            Value = value;
         }
 
         [JsonIgnore]

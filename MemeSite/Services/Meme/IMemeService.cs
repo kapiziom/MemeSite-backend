@@ -17,7 +17,7 @@ namespace MemeSite.Services
         Task<PagedList<MemeVM>> GetPagedMemesAsync<TKey>(Expression<Func<Meme, bool>> filter, Expression<Func<Meme, TKey>> order, int page, int itemsPerPage, System.Security.Claims.ClaimsPrincipal user);
         Task<PagedList<MemeVM>> GetPagedFavouritesMemesAsync(int page, int itemsPerPage, System.Security.Claims.ClaimsPrincipal user);
         Task<PagedList<MemeVM>> GetPagedUsersFavourites(int page, int itemsPerPage, System.Security.Claims.ClaimsPrincipal user);
-        Task<bool> DeleteMeme(int id, System.Security.Claims.ClaimsPrincipal user);
+        Task DeleteMeme(int id, System.Security.Claims.ClaimsPrincipal user);
         Task<Result<Meme>> EditMeme(EditMemeVM meme, int id, System.Security.Claims.ClaimsPrincipal user);
         Task ChangeArchiveStatus(int memeId, bool value);
         Task ChangeAccpetanceStatus(int memeId, bool value);

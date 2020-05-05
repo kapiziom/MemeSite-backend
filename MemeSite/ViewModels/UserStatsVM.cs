@@ -14,6 +14,5 @@ namespace MemeSite.ViewModels
         public int TotalAccepted { get; set; }
         public int TotalComments { get; set; }
         public string Joined { get; set; }
-        public int FavouritesCount { get; set; }
     }
 }

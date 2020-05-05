@@ -31,8 +31,8 @@ namespace MemeSite.Controllers
         [HttpPost]
         [Authorize(Roles = "Administrator")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Result<Category>), 400)]
-        [ProducesResponseType(typeof(Result<Category>), 409)]
+        [ProducesResponseType(typeof(Result), 400)]
+        [ProducesResponseType(typeof(ExceptionMessage), 409)]
         public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryVM createCategoryVM)
         {
             var result = await _categoryService.InsertCategory(createCategoryVM);
@@ -61,7 +61,8 @@ namespace MemeSite.Controllers
         [HttpPut("{id}")]
         [Authorize(Roles = "Administrator")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Result<Category>), 400)]
+        [ProducesResponseType(typeof(Result), 400)]
+        [ProducesResponseType(typeof(ExceptionMessage), 404)]
         [ProducesResponseType(typeof(ExceptionMessage), 409)]
         public async Task<IActionResult> UpdateCategory([FromBody] CreateCategoryVM category, int id)
         {

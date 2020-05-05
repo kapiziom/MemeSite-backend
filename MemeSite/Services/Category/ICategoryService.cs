@@ -18,7 +18,5 @@ namespace MemeSite.Services
         Task DeleteCategory(int id);
         Task<Result<Category>> InsertCategory(CreateCategoryVM category);
         Task<Result<Category>> UpdateCategory(CreateCategoryVM category, int id);
-
-        Task<Category> testfortest(CreateCategoryVM create);
     }
 }

@@ -16,12 +16,12 @@ namespace MemeSite.Services
         Task<UserStatsVM> GetUserStatsById(string userId);
         Task<UserStatsVM> GetUserStats(PageUser user);
         Task<PagedList<ListedUserVM>> GetPagedListVM<TKey>(Expression<Func<PageUser, bool>> filter, Expression<Func<PageUser, TKey>> order, int page, int itemsPerPage);
-        Task<object> RegisterUser(RegisterVM model);
+        Task<IdentityResult> RegisterUser(RegisterVM model);
 
-        Task<object> ChangePassword(ChangePasswordVM changePasswordVM, System.Security.Claims.ClaimsPrincipal user);
-        Task<object> ChangeEmail(ChangeEmailVM email, System.Security.Claims.ClaimsPrincipal user);
-        Task<object> ChangeUserName(ChangeUserNameVM username, System.Security.Claims.ClaimsPrincipal user);
-        Task<object> SetUserRole(SetUserRoleVM setRole, System.Security.Claims.ClaimsPrincipal currentUser);
+        Task<IdentityResult> ChangePassword(ChangePasswordVM changePasswordVM, System.Security.Claims.ClaimsPrincipal user);
+        Task<IdentityResult> ChangeEmail(ChangeEmailVM email, System.Security.Claims.ClaimsPrincipal user);
+        Task<IdentityResult> ChangeUserName(ChangeUserNameVM username, System.Security.Claims.ClaimsPrincipal user);
+        Task<IdentityResult> SetUserRole(SetUserRoleVM setRole, System.Security.Claims.ClaimsPrincipal currentUser);
 
     }
 }

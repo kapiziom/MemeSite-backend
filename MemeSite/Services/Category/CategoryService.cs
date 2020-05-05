@@ -65,24 +65,6 @@ namespace MemeSite.Services
             await _repository.DeleteAsync(id);
         }
 
-        public async Task<Category> testfortest(CreateCategoryVM create)
-        {
-            Category entity = new Category()
-            {
-                CategoryName = create.CategoryName
-            };
-            var result = Validate(entity);
-            if (await IsExistAsync(m => m.CategoryName == create.CategoryName))
-            {
-                throw new MemeSiteException(HttpStatusCode.Forbidden, "Duplicate, category already exist.");
-            }
-            if (result.Succeeded)
-            {
-                return await _repository.InsertAsync(entity);
-            }
-            return null;
-        }
-
         public async Task<Result<Category>> InsertCategory(CreateCategoryVM create)
         {
             Category entity = new Category()
@@ -92,7 +74,7 @@ namespace MemeSite.Services
             var result = Validate(entity);
             if(await IsExistAsync(m => m.CategoryName == create.CategoryName))
             {
-                throw new MemeSiteException(HttpStatusCode.Forbidden, "Duplicate, category already exist.");
+                throw new MemeSiteException(HttpStatusCode.Conflict, "Duplicate, category already exist.");
             }
             if (result.Succeeded)
             {
@@ -106,6 +88,10 @@ namespace MemeSite.Services
             var category = await FindAsync(id);
             if (category == null)
                 throw new MemeSiteException(HttpStatusCode.NotFound, "Category not found");
+            if (await IsExistAsync(m => m.CategoryName == categoryVM.CategoryName))
+            {
+                throw new MemeSiteException(HttpStatusCode.Conflict, "Duplicate, category already exist.");
+            }
             category.CategoryName = categoryVM.CategoryName;
             return await Update(category);
         }

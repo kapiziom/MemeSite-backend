@@ -22,7 +22,7 @@ namespace MemeSite.Controllers
         {
             _commentService = commentService;
         }
-
+        
         [HttpGet("{id}")]
         public async Task<CommentVM> GetComment(int id)
             => await _commentService.GetCommentVM(id);
@@ -43,7 +43,7 @@ namespace MemeSite.Controllers
         {
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
             var result = await _commentService.InsertComment(comment, userId);
-            return Ok(result);
+            return Ok(result);//return new comment mapped to view model
         }
 
         [HttpPut("{id}")]
