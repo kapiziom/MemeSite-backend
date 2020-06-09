@@ -13,6 +13,8 @@ namespace MemeSite.ViewModels
         public string Txt { get; set; }
         [Required]
         public int MemeId { get; set; }
+        [Required]
+        public string UserId { get; set; }
 
     }
 }

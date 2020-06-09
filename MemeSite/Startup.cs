@@ -13,18 +13,18 @@ using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.Extensions.Options;
 using MemeSite.Data.Repository;
 using MemeSite.Services;
 using Swashbuckle.AspNetCore.Swagger;
-using System.Reflection;
-using System.IO;
 using FluentValidation;
 using MemeSite.Data.Models;
 using MemeSite.Data.Models.Validators;
 using MemeSite.Data.DbContext;
 using MemeSite.Data.Models.Common;
 using MemeSite.Middleware;
+using AutoMapper;
+using MemeSite.AutoMapper;
+using MemeSite.Configuration;
 
 namespace MemeSite
 {
@@ -72,90 +72,22 @@ namespace MemeSite
 
             services.AddControllers();
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection"))); services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-            services.AddIdentity<PageUser, PageRole>().AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-            services.Configure<IdentityOptions>(options =>
-            {
-                options.Password.RequireDigit = false;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireUppercase = false;
-                options.User.RequireUniqueEmail = true;
-            });
+            //db+identity
+            services.AddDbSetup(Configuration);
 
             //JwtAuth
             var key = Encoding.UTF8.GetBytes(Configuration["ApplicationSettings:JWT_Secret"].ToString());
+            services.JWTsetup(key);
 
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = false;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
-            //repository
-            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            //services
-            services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<ICommentService, CommentService>();
-            services.AddScoped<IVoteService, VoteService>();
-            services.AddScoped<IFavouriteService, FavouriteService>();
-            services.AddScoped<IMemeService, MemeService>();
-            services.AddScoped<IUserService, UserService>();
-            //validators
-            services.AddScoped<IValidator<Category>, CategoryValidator>();
-            services.AddScoped<IValidator<Comment>, CommentValidator>();
-            services.AddScoped<IValidator<Favourite>, FavouriteValidator>();
-            services.AddScoped<IValidator<Meme>, MemeValidator>();
-            services.AddScoped<IValidator<Vote>, VoteValidator>();
+            //repositories, services, validators
+            services.AddRepositoryServicesSetup();
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Description =
-        "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer"
-                });
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            },
-                            Scheme = "oauth2",
-                            Name = "Bearer",
-                            In = ParameterLocation.Header,
+            // Auto Mapper Configurations
+            services.AddAutoMapperSetup();
 
-                        },
-                        new List<string>()
-                    }
-                });
-            });
+            //swagger
+            services.AddSwaggerSetup();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -172,13 +104,8 @@ namespace MemeSite
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseSwagger();
-
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-                c.RoutePrefix = string.Empty;
-            });
+            //swagger
+            app.UseSwaggerSetup();
 
             app.UseEndpoints(endpoints =>
             {

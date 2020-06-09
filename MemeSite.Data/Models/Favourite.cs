@@ -11,5 +11,7 @@ namespace MemeSite.Data.Models
         public PageUser User { get; set; }
         public int MemeRefId { get; set; }
         public Meme Meme { get; set; }
+
+        public DateTime CreateFavDate { get; set; }
     }
 }

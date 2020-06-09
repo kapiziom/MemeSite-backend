@@ -1,9 +1,11 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+using FluentValidation;
 using MemeSite.Data.Models;
 using MemeSite.Data.Models.Common;
 using MemeSite.Data.Repository;
 using MemeSite.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +27,8 @@ namespace MemeSite.Services
                 Favourite entity = new Favourite()
                 {
                     MemeRefId = fav.MemeId,
-                    UserId = fav.UserId
+                    UserId = fav.UserId,
+                    CreateFavDate = DateTime.Now
                 };
                 await _repository.InsertAsync(entity);
                 return true;
@@ -40,18 +43,20 @@ namespace MemeSite.Services
 
         public async Task<List<Meme>> GetUsersFavourites(string userId)
         {
-            var favs = await GetAllFilteredIncludeAsync(m => m.UserId == userId,
-                x => x.Meme.Comments,
-                x => x.Meme.Favourites,
-                x => x.Meme.Votes,
-                x => x.Meme.PageUser,
-                x => x.Meme.Category);
-            List<Meme> list = new List<Meme>();
-            foreach (var fav in favs)
-            {
-                list.Add(fav.Meme);
-            }
-            return list;
+            var query = _repository.Query()
+                .Where(m => m.UserId == userId)
+                .OrderByDescending(m => m.CreateFavDate)
+                .Include(x => x.Meme).ThenInclude(y => y.Comments)
+                .Include(x => x.Meme).ThenInclude(y => y.PageUser)
+                .Include(x => x.Meme).ThenInclude(y => y.Votes)
+                .Include(x => x.Meme).ThenInclude(y => y.Favourites)
+                .Include(x => x.Meme).ThenInclude(y => y.Category);
+
+            var memelist = from q in query select q.Meme;
+
+            var result = await memelist.ToListAsync();
+
+            return result;
         }
 
         public async Task<int> CountUsersFavourites(int memeId, string userId)

@@ -15,6 +15,7 @@ namespace MemeSite.Data.Repository
         TEntity Find(params object[] keyValues);
         Task<TEntity> FindAsync(params object[] keyValues);
         Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> filter);
+        Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> filter, Expression<Func<TEntity, object>> include);
         //get all
         Task<List<TEntity>> GetAllAsync();
         //get all with filter
@@ -40,6 +41,5 @@ namespace MemeSite.Data.Repository
 
         TEntity Insert(TEntity entity);
 
-        bool IsUnique(TEntity entity);
     }
 }

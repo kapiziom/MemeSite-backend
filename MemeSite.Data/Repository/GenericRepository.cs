@@ -119,35 +119,6 @@ namespace MemeSite.Data.Repository
             };
         }
 
-        public virtual async Task<PagedList<TEntity>> GetPagedAsync2<TKey>(
-           Expression<Func<TEntity, bool>> filter,
-           Expression<Func<TEntity, TKey>> orderByDescending,
-           int page,
-           int itemsPerPage)
-        {
-            var skip = (page - 1) * itemsPerPage;
-            var query = _dbSet.AsQueryable();
-
-
-            query = query.Where(filter);
-            var total = await query.CountAsync();
-            int pageCount = (int)Math.Ceiling(((double)total / itemsPerPage));
-            var result = await query
-                .OrderByDescending(orderByDescending)
-                .Skip(skip)
-                .Take(itemsPerPage)
-                .ToListAsync();
-
-            return new PagedList<TEntity>()
-            {
-                Page = page,
-                ItemsPerPage = itemsPerPage,
-                PageCount = pageCount,
-                TotalItems = total,
-                Items = result
-            };
-        }
-        
         public async Task DeleteAsync(params object[] keyValues)
         {
             var entity = await FindAsync(keyValues);
@@ -180,9 +151,6 @@ namespace MemeSite.Data.Repository
         public async Task<int> CountAsync(Expression<Func<TEntity, bool>> filter) => await _dbSet.CountAsync(filter);
         public async Task<bool> IsExistAsync(Expression<Func<TEntity, bool>> filter) => await CountAsync(filter) > 0;
 
-        public virtual bool IsUnique(TEntity entity)
-        {
-            return true;
-        }
+        
     }
 }
