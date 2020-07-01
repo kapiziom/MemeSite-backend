@@ -1,8 +1,9 @@
-﻿using MemeSite.Data.Models;
-using MemeSite.Data.Models.Validators;
+﻿using AutoMapper;
 using MemeSite.Data.Repository;
-using MemeSite.Services;
-using MemeSite.ViewModels;
+using MemeSite.Domain;
+using MemeSite.Domain.Validators;
+using MemeSite.Api.Services;
+using MemeSite.Api.ViewModels;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace MemeSite.XUnitTests.Services
             var vm = new AddFavouriteVM()
             {
                 MemeId = 1,
-                UserId = "currentUserId"
+                UserId = "currentUserId",
             };
             favouriteRepoMock.Setup(x =>
             x.IsExistAsync(m => m.MemeRefId == vm.MemeId && m.UserId == vm.UserId))

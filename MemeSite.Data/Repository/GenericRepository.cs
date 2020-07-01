@@ -1,6 +1,6 @@
 ﻿using MemeSite.Data.DbContext;
-using MemeSite.Data.Models.Common;
-using MemeSite.Data.Models.Exceptions;
+using MemeSite.Domain.Common;
+using MemeSite.Domain.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

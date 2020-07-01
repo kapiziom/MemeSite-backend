@@ -1,10 +1,7 @@
 ﻿using MemeSite.Data.DbContext;
-using MemeSite.Data.Models;
-using MemeSite.Data.Models.Enums;
-using MemeSite.Data.Models.Validators;
 using MemeSite.Data.Repository;
-using MemeSite.Services;
-using MemeSite.ViewModels;
+using MemeSite.Api.Services;
+using MemeSite.Api.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -14,6 +11,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using MemeSite.Domain;
+using MemeSite.Domain.Enums;
+using MemeSite.Domain.Validators;
 
 namespace MemeSite.XUnitTests.Services
 {

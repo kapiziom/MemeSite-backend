@@ -1,4 +1,4 @@
-﻿using MemeSite.Data.Models;
+﻿using MemeSite.Domain;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;

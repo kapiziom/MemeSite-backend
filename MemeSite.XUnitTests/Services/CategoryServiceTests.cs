@@ -1,8 +1,8 @@
-﻿using MemeSite.Data.Models;
-using MemeSite.Data.Models.Validators;
-using MemeSite.Data.Repository;
-using MemeSite.Services;
-using MemeSite.ViewModels;
+﻿using MemeSite.Data.Repository;
+using MemeSite.Domain;
+using MemeSite.Domain.Validators;
+using MemeSite.Api.Services;
+using MemeSite.Api.ViewModels;
 using Moq;
 using Xunit;
 

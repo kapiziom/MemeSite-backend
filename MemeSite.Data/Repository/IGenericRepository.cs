@@ -1,4 +1,4 @@
-﻿using MemeSite.Data.Models.Common;
+﻿using MemeSite.Domain.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;

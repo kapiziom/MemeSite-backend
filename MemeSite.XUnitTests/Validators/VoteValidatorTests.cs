@@ -1,7 +1,7 @@
 ﻿using FluentValidation.Results;
-using MemeSite.Data.Models;
-using MemeSite.Data.Models.Enums;
-using MemeSite.Data.Models.Validators;
+using MemeSite.Domain;
+using MemeSite.Domain.Enums;
+using MemeSite.Domain.Validators;
 using System;
 using System.Collections.Generic;
 using System.Text;

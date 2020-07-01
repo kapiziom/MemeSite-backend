@@ -3,9 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Storage;
-using MemeSite.Data.Models;
-using MemeSite.Data.DbContext.Configurations;
+using MemeSite.Data.DbContext.Mapping;
+using MemeSite.Domain;
 
 namespace MemeSite.Data.DbContext
 {
@@ -26,11 +25,11 @@ namespace MemeSite.Data.DbContext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new CategoryConfiguration());
-            modelBuilder.ApplyConfiguration(new CommentConfiguration());
-            modelBuilder.ApplyConfiguration(new FavouriteConfiguration());
-            modelBuilder.ApplyConfiguration(new MemeConfiguration());
-            modelBuilder.ApplyConfiguration(new VoteConfiguration());
+            modelBuilder.ApplyConfiguration(new CategoryMap());
+            modelBuilder.ApplyConfiguration(new CommentMap());
+            modelBuilder.ApplyConfiguration(new FavouriteMap());
+            modelBuilder.ApplyConfiguration(new MemeMap());
+            modelBuilder.ApplyConfiguration(new VoteMap());
         }
     }
 }
