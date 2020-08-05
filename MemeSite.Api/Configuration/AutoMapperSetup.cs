@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using MemeSite.Api.AutoMapper;
+using MemeSite.Application.AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 

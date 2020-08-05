@@ -1,19 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
-using MemeSite.Domain.Common;
 using MemeSite.Api.Middleware;
-using MemeSite.Api.Services;
-using MemeSite.Api.ViewModels;
+using MemeSite.Application.Interfaces;
+using MemeSite.Application.ViewModels;
+using MemeSite.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MemeSite.Controllers

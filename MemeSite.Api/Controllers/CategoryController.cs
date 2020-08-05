@@ -1,20 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
-using AutoMapper;
-using FluentValidation;
-using FluentValidation.Results;
-using MemeSite.Domain;
-using MemeSite.Domain.Common;
 using MemeSite.Api.Middleware;
-using MemeSite.Api.Services;
-using MemeSite.Api.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MemeSite.Domain.Models;
+using MemeSite.Application.Interfaces;
+using MemeSite.Application.ViewModels;
 
 namespace MemeSite.Controllers
 {

@@ -2,9 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using MemeSite.Data.DbContext.Mapping;
-using MemeSite.Domain;
+using MemeSite.Data.Mapping;
+using MemeSite.Domain.Models;
 
 namespace MemeSite.Data.DbContext
 {

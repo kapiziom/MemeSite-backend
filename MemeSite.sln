@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemeSite.Data", "MemeSite.D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemeSite.XUnitTests", "MemeSite.XUnitTests\MemeSite.XUnitTests.csproj", "{49A03F40-143A-4806-B24F-0219CE80AB19}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MemeSite.Domain", "MemeSite.Domain\MemeSite.Domain.csproj", "{3E184CCE-5803-42F9-A6A9-BA743BDB849B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemeSite.Domain", "MemeSite.Domain\MemeSite.Domain.csproj", "{3E184CCE-5803-42F9-A6A9-BA743BDB849B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MemeSite.Application", "MemeSite.Application\MemeSite.Application.csproj", "{1A6F0CF1-CE0C-4DDD-8C1F-E26BBE17F401}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{3E184CCE-5803-42F9-A6A9-BA743BDB849B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E184CCE-5803-42F9-A6A9-BA743BDB849B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E184CCE-5803-42F9-A6A9-BA743BDB849B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A6F0CF1-CE0C-4DDD-8C1F-E26BBE17F401}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A6F0CF1-CE0C-4DDD-8C1F-E26BBE17F401}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A6F0CF1-CE0C-4DDD-8C1F-E26BBE17F401}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A6F0CF1-CE0C-4DDD-8C1F-E26BBE17F401}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

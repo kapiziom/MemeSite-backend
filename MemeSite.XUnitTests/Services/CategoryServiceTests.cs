@@ -1,22 +1,24 @@
-﻿using MemeSite.Data.Repository;
-using MemeSite.Domain;
-using MemeSite.Domain.Validators;
-using MemeSite.Api.Services;
-using MemeSite.Api.ViewModels;
+﻿using MemeSite.Domain.Validators;
 using Moq;
 using Xunit;
+using MemeSite.Domain.Interfaces;
+using MemeSite.Domain.Models;
+using MemeSite.Application.ViewModels;
+using MemeSite.Application.Services;
 
 namespace MemeSite.XUnitTests.Services
 {
 
     public class CategoryServiceTests
     {
-        readonly Mock<IGenericRepository<Category>> categoryRepoMock;
+        //readonly Mock<IGenericRepository<Category>> categoryRepoMock;
+        readonly Mock<ICategoryRepository> categoryRepoMock;
 
         public CategoryServiceTests()
         {
 
-            categoryRepoMock = new Mock<IGenericRepository<Category>>();
+            //categoryRepoMock = new Mock<IGenericRepository<Category>>();
+            categoryRepoMock = new Mock<ICategoryRepository>();
 
             categoryRepoMock.Setup(x => x.InsertAsync(It.IsAny<Category>())).ReturnsAsync((Category x) => x);
 

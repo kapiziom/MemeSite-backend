@@ -1,5 +1,4 @@
-﻿using MemeSite.Domain.Common;
-using MemeSite.Domain.Exceptions;
+﻿using MemeSite.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;

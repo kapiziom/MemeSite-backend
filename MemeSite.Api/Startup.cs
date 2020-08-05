@@ -7,19 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.OpenApi.Models;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using FluentValidation;
 using MemeSite.Data.DbContext;
 using MemeSite.Api.Middleware;
-using AutoMapper;
-using MemeSite.Api.AutoMapper;
 using MemeSite.Api.Configuration;
-using MemeSite.Domain.Common;
-using MemeSite.Domain;
+using MemeSite.Domain.Models;
 
 namespace MemeSite.Api
 {

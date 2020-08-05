@@ -1,26 +1,23 @@
-﻿using AutoMapper;
-using MemeSite.Data.Repository;
-using MemeSite.Domain;
-using MemeSite.Domain.Validators;
-using MemeSite.Api.Services;
-using MemeSite.Api.ViewModels;
+﻿using MemeSite.Domain.Validators;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using MemeSite.Domain.Interfaces;
+using MemeSite.Domain.Models;
+using MemeSite.Application.ViewModels;
+using MemeSite.Application.Services;
 
 namespace MemeSite.XUnitTests.Services
 {
     public class FavouriteServiceTests
     {
-        readonly Mock<IGenericRepository<Favourite>> favouriteRepoMock;
+        //readonly Mock<IGenericRepository<Favourite>> favouriteRepoMock;
+        readonly Mock<IFavouriteRepository> favouriteRepoMock;
 
         public FavouriteServiceTests()
         {
-            favouriteRepoMock = new Mock<IGenericRepository<Favourite>>();
+            //favouriteRepoMock = new Mock<IGenericRepository<Favourite>>();
+            favouriteRepoMock = new Mock<IFavouriteRepository>();
         }
 
         [Fact]

@@ -1,5 +1,5 @@
 ﻿using MemeSite.Data.DbContext;
-using MemeSite.Domain;
+using MemeSite.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

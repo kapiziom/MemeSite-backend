@@ -1,31 +1,26 @@
-﻿using MemeSite.Data.DbContext;
-using MemeSite.Data.Repository;
-using MemeSite.Api.Services;
-using MemeSite.Api.ViewModels;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Moq;
+﻿using Moq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using MemeSite.Domain;
-using MemeSite.Domain.Enums;
 using MemeSite.Domain.Validators;
+using MemeSite.Domain.Models;
+using MemeSite.Domain.Interfaces;
+using MemeSite.Application.Services;
+using MemeSite.Application.ViewModels;
 
 namespace MemeSite.XUnitTests.Services
 {
 
     public class VoteServiceTests
     {
-        readonly Mock<IGenericRepository<Vote>> voteRepoMock;
 
+        //readonly Mock<IGenericRepository<Vote>> voteRepoMock;
+        readonly Mock<IVoteRepository> voteRepoMock;
 
         public VoteServiceTests()
         {
-            voteRepoMock = new Mock<IGenericRepository<Vote>>();
+            //voteRepoMock = new Mock<IGenericRepository<Vote>>();
+            voteRepoMock = new Mock<IVoteRepository>();
             voteRepoMock.Setup(x => x.InsertAsync(It.IsAny<Vote>())).ReturnsAsync((Vote x) => x);
         }
 

@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authorization;
-using MemeSite.Api.ViewModels;
-using MemeSite.Api.Services;
-using MemeSite.Domain;
 using MemeSite.Api;
+using MemeSite.Domain.Models;
+using MemeSite.Application.Interfaces;
+using MemeSite.Application.ViewModels;
 
 namespace MemeSite.Controllers
 {

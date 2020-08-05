@@ -1,5 +1,6 @@
 ﻿using FluentValidation.Results;
 using MemeSite.Domain;
+using MemeSite.Domain.Models;
 using MemeSite.Domain.Validators;
 using System;
 using Xunit;

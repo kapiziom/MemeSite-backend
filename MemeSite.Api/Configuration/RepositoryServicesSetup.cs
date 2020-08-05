@@ -1,9 +1,11 @@
 ﻿using FluentValidation;
 using MemeSite.Data.Repository;
-using MemeSite.Api.Services;
 using Microsoft.Extensions.DependencyInjection;
-using MemeSite.Domain;
 using MemeSite.Domain.Validators;
+using MemeSite.Domain.Interfaces;
+using MemeSite.Application.Services;
+using MemeSite.Domain.Models;
+using MemeSite.Application.Interfaces;
 
 namespace MemeSite.Api.Configuration
 {
@@ -12,8 +14,14 @@ namespace MemeSite.Api.Configuration
         public static IServiceCollection AddRepositoryServicesSetup(
           this IServiceCollection services)
         {
-            //repository
-            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            
+            //repositories
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<ICommentRepository, CommentRepository>();
+            services.AddScoped<IFavouriteRepository, FavouriteRepository>();
+            services.AddScoped<IMemeRepository, MemeRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IVoteRepository, VoteRepository>();
             //services
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<ICommentService, CommentService>();

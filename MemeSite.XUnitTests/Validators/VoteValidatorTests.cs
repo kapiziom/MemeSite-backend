@@ -1,10 +1,6 @@
 ﻿using FluentValidation.Results;
-using MemeSite.Domain;
-using MemeSite.Domain.Enums;
+using MemeSite.Domain.Models;
 using MemeSite.Domain.Validators;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace MemeSite.XUnitTests.Validators

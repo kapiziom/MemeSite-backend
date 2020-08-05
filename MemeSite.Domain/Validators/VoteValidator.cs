@@ -1,8 +1,5 @@
 ﻿using FluentValidation;
-using MemeSite.Domain.Enums;
-using System.Collections.Generic;
-using System.Text;
-
+using MemeSite.Domain.Models;
 
 namespace MemeSite.Domain.Validators
 {
