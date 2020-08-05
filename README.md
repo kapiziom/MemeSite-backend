@@ -6,6 +6,8 @@ ASP.NET Core 3.1 web.api
   * Entity Framework Core,
   * Linq,
   * MSSQL server,
+  * AutoMapper
+  * FluentValidation
   * jwt bearer role based auth
   * some unit tests with Xunit</br>
 ## Basic Functionalities:
